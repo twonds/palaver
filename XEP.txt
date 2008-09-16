@@ -1,0 +1,478 @@
+1. Introduction
+
+This document describes palaver's relation to XEP-045. It documents
+what is implemented, its status and what is not implemented in the XEP.
+It is numbered exactly like the XEP.
+
+2. Scope
+
+Only covers what is implemented in palaver version 0.5. 
+
+3. Requirements
+
+In this section the XEP mentions minimum requirements for multi-user chat.
+Palaver meets these minimum requirements and the list is below:
+
+    * Each room is identified as <room@service> 
+      (e.g., <jdev@conference.jabber.org>), where "room" is the name of the 
+      room and "service" is the hostname at which the multi-user chat service
+      is running.
+
+    - This is implemented and stable in palaver.
+
+    * Each occupant in a room is identified as <room@service/nick>, 
+      where "nick" is the room nickname of the occupant as specified on 
+      entering the room or subsequently changed during the occupant's visit.
+
+    - This is implemented and stable in palaver.
+
+    * A user enters a room (i.e., becomes an occupant) by sending presence 
+      to <room@service/nick>.
+
+    - This is implemented and stable in palaver.
+
+    * Messages sent within multi-user chat rooms are of a special type 
+      "groupchat" and are addressed to the room itself (room@service), then 
+      reflected to all occupants.
+
+    - This is implemented and stable in palaver.
+
+    * An occupant can change his or her room nickname and availability 
+      status within the room by sending presence information to 
+      <room@service/newnick>.
+
+    - This is implemented and stable in palaver.
+
+    * An occupant exits a room by sending presence of type "unavailable" 
+      to its current <room@service/nick>.
+
+    - This is implemented and stable in palaver.
+
+The additional features and functionality addressed in the XEP 
+include the following:
+
+   1. native conversation logging (no in-room bot required)
+
+   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.
+
+   2. enabling users to request membership in a room
+
+   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.
+
+   3. enabling occupants to view an occupant's full JID in a non-anonymous 
+      room.
+
+   - This is implemented and stable in palaver.
+
+   4. enabling moderators to view an occupant's full JID in a 
+      semi-anonymous room
+
+   - This is implemented and stable in palaver.
+
+   5. allowing only moderators to change the room subject
+
+   - This is implemented and stable in palaver.
+
+   6. enabling moderators to kick participants and visitors from the room
+
+   - This IS implemented in palaver and the implementation has been tested.
+   
+   7. enabling moderators to grant and revoke voice 
+      (i.e., the privilege to speak) in a moderated room, and to 
+      manage the voice list
+
+   - This is NOT implemented in palaver 0.5.
+
+
+   8. enabling admins to grant and revoke moderator privileges, 
+      and to manage the moderator list
+
+   - This IS implemented in palaver and has been tested.      
+
+   9. enabling admins to ban users from the room, and to manage the ban list
+
+   - This IS implemented in palaver and has been tested.      
+
+  10. enabling admins to grant and revoke membership privileges, and to 
+      manage the member list for a members-only room
+
+  - This is implemented in palaver and has been tested.
+
+  - However, code for managing a members list is finished.
+
+  11. enabling owners to limit the number of occupants
+
+  - This IS implemented in palaver but has NOT been tested enough.      
+
+  12. enabling owners to specify other owners
+
+  - This IS implemented in palaver but has NOT been tested enough.      
+
+  13. enabling owners to grant and revoke administrative privileges, 
+      and to manage the admin list
+
+   - This IS implemented in palaver and has not been tested.      
+
+  14. enabling owners to destroy the room
+
+  - This is implemented in palaver and has been tested.
+
+In addition, the XEP provides protocol elements for supporting 
+the following room types:
+
+   1. public or hidden
+
+   - This IS implemented in palaver.
+
+   2. persistent or temporary
+
+   - This IS implemented in palaver and has been tested.      
+
+   3. password-protected or unsecured
+
+   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.
+
+   4. members-only or open
+
+   - This is implemented in palaver and needs more testing.
+
+   5. moderated or unmoderated
+
+   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.
+
+   6. non-anonymous or semi-anonymous
+
+   - This IS implemented in palaver and has been tested.      
+
+5. Roles and Affiliations
+
+   5.1 Roles
+      There are four defined roles that an occupant may have:
+
+      1. Moderator
+      2. Participant
+      3. Visitor
+      4. None (the absence of a role)
+
+      Roles are implemented as defined by the XEP.
+
+      NOTE: palaver adds an additional role 'player' for game rooms.
+
+   5.2 Affiliations
+
+   There are five affiliations that a user may have in relation to a room:
+
+      1. Owner
+      2. Admin
+      3. Member
+      4. Outcast
+      5. None (the absence of an affiliation)
+
+      Affiliations are implemented as defined by the XEP.
+
+      * Moderated rooms are yet to be implemented in palaver 0.5, but is 
+        expected to be in future versions.
+
+      * Owners and Admins can change the status of people equal to their
+        affiliation. This needs to be implemened in a future version of palaver.
+      
+      * Destroy room is  implemented in palaver.
+
+      NOTE: palaver adds an additional affiliation 'player' for game rooms.
+
+6. Occupent Use Cases
+
+   6.1 Discovering Component Support for MUC
+
+     Palaver supports Service Discovery for a user who wants to discover rooms.
+
+     6.2. Discovering Client Support for MUC
+      
+      This is not relavent to palaver.
+
+     6.3. Entering a Room     
+	  6.3.1. Groupchat 1.0 Protocol
+	  
+ 	   This IS implemented and tested in palaver.
+
+	  6.3.2. Basic MUC Protocol
+	   
+	    In palaver 0.5 the x stanza is accepted but it is not registered
+           as a client who supports the MUC protocol. This will be implemented
+           in future versions.
+	  
+	  6.3.3. Presence Broadcast
+    	   This IS implemented and tested in palaver.
+
+
+	  6.3.4. Default Roles
+	  
+	    This IS implemented and tested in palaver.
+
+	  6.3.5. Non-Anonymous Rooms
+	  
+	  - This IS implemented in palaver and has been tested.      
+
+	  6.3.6. Semi-Anonymous Rooms
+           
+          - This IS implemented in palaver and has been tested.      
+        
+          6.3.7. Password-Protected Rooms
+           
+          This is NOT implemented in palaver 0.5, but it is expected to be in a
+          future version.		
+	  
+	  6.3.8. Members-Only Rooms
+           
+          This is NOT implemented in palaver 0.5, but it is expected to be in a
+          future version.		
+	  
+	  6.3.9. Banned Users
+	  
+	    This IS implemented and tested in palaver.
+
+	  6.3.10. Nickname Conflict
+
+	    This IS implemented and tested in palaver.
+	  
+	  6.3.11. Max Users
+
+	    This IS implemented and tested in palaver.
+	  
+	  6.3.12. Discussion History
+
+	  - This IS implemented in palaver and has been tested.      
+
+	  
+          6.3.13. Managing Discussion History
+	  
+	  History can be configured via room configuration, but palaver 0.5 
+          ignores the history stanza in the x MUC stanza. This is expected in
+          future versions. 
+
+	  6.3.14. Locked Room
+	  
+          This is NOT implemented in palaver 0.5, but it is expected to be in a
+          future version.		
+
+	  6.3.15. Nonexistent Room
+     
+          In palaver if a user sends presence to a non-existent room, the room
+	  is created.
+
+     6.4. Exiting a Room
+     
+     This IS implemented in palaver. 
+
+     6.5. Changing Nickname
+
+     This IS implemented in palaver. 
+     
+     6.6. Changing Availability Status
+     
+     This IS implemented in palaver. 
+
+     6.7. Inviting Another User to a Room
+     
+     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.		
+
+     6.8. Converting a One-to-One Chat Into a Conference
+
+     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.		
+     
+     6.9. Occupant Modification of the Room Subject
+     
+     This IS implemented in palaver. 
+
+     6.10. Sending a Private Message
+
+     This IS implemented in palaver. 
+
+     6.11. Sending a Message to All Occupants
+     
+     This IS implemented in palaver. 
+
+     6.12. Registering with a Room
+     
+     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.		
+
+     6.13. Discovering Reserved Room Nickname
+
+     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     future version.		
+
+7. Moderator Use Cases
+
+   7.1. Modifying the Room Subject
+   
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+
+   7.2. Kicking an Occupant
+
+   This IS implemented in palaver. In version 0.5, Actor, Reason, and 
+   status codes are not sent. This is expected to be implemented in future
+   versions.
+
+   7.3. Granting Voice to a Visitor
+ 
+   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   future version.		
+  
+   7.4. Revoking Voice from a Participant
+
+   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   future version.		
+   
+   7.5. Modifying the Voice List
+
+   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   future version.		
+
+8. Admin Use Cases
+
+   8.1. Banning a User
+
+   This IS implemented in palaver. In version 0.5, Actor, Reason, and 
+   status codes are not sent. This is expected to be implemented in future
+   versions.
+
+   8.2. Modifying the Ban List
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+
+   8.3. Granting Membership
+
+   This IS implemented in palaver  0.5, but not tested for completeness. 
+
+   8.4. Revoking Membership
+
+   This IS implemented in palaver  0.5, but not tested for completeness. 
+
+   8.5. Modifying the Member List
+
+   This IS implemented in palaver  0.5, but not tested for completeness. 
+
+   8.6. Granting Moderator Privileges
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+
+   8.7. Revoking Moderator Privileges
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+
+   8.8. Modifying the Moderator List
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+
+   8.9. Approving Registration Requests
+
+   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   future version.		
+
+9. Owner Use Cases
+
+   9.1. Creating a Room
+
+	9.1.1. General Considerations
+	9.1.2. Creating an Instant Room
+	9.1.3. Creating a Reserved Room
+
+   This is implemented in palaver and has been tested. Palaver also supports
+   legacy room creation and instant rooms. 
+
+   9.2. Subsequent Room Configuration
+   
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+
+   9.3. Granting Ownership Privileges
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+   
+   9.4. Revoking Ownership Privileges
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+   
+   9.5. Modifying the Owner List
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+   
+   9.6. Granting Administrative Privileges
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+   
+   9.7. Revoking Administrative Privileges
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+   
+   9.8. Modifying the Admin List
+
+   This IS implemented in palaver 0.5, but not tested for completeness. 
+   
+   9.9. Destroying a Room
+
+   This is implemented in palaver.		
+
+10. Error and status codes
+
+  See muc.py , groupchat.py and xmpp/error.py for errors 
+  and that implemented and how. This needs to be check for completeness.
+
+
+11. Internationalization Considerations
+
+
+
+12. Security Considerations
+
+13. IANA Considerations
+
+14. Jabber Registrar Considerations
+
+    14.1. Protocol Namespaces
+    14.2. Service Discovery Category/Type
+    14.3. Service Discovery Features
+    14.4. Well-Known Service Discovery Nodes
+    14.5. Field Standardization
+
+        14.5.1. muc#register FORM_TYPE
+	14.5.2. muc#roomconfig FORM_TYPE
+	14.5.3. muc#roominfo FORM_TYPE
+
+    14.6. Status Codes Registry
+
+	  14.6.1. Process
+	  14.6.2. Initial Submission
+
+15. Business Rules
+
+    15.1. Addresses
+    15.2. Message
+    15.3. Presence
+    15.4. IQ
+
+16. Implementation Notes
+
+   16.1. Services
+
+   16.1.1. Allowable Traffic
+
+   16.2. Clients 
+   
+
+17. XML Schemas
+   See XEP-045 for the following schemas 
+   17.1. http://jabber.org/protocol/muc
+   17.2. http://jabber.org/protocol/muc#user
+   17.3. http://jabber.org/protocol/muc#admin
+   17.4. http://jabber.org/protocol/muc#owner
+
+18. Acknowledgements Notes
+
+See XEP, and thanks to twisted developers.

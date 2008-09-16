@@ -1,0 +1,180 @@
+2007/10/14 15:38 EDT [-] Log opened.
+2007/10/14 15:38 EDT [-] twistd 2.3.0 (/usr/bin/python 2.4.3) starting up
+2007/10/14 15:38 EDT [-] reactor class: <class 'twisted.internet.selectreactor.SelectReactor'>
+2007/10/14 15:38 EDT [-] Loading palaver.tap...
+2007/10/14 15:38 EDT [-] Loaded.
+2007/10/14 15:38 EDT [-] Starting factory <twisted.words.protocols.jabber.xmlstream.XmlStreamFactory instance at 0xb79a79ac>
+2007/10/14 15:38 EDT [Uninitialized] SEND: <stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept' to='chat.butterfat.net'>
+2007/10/14 15:38 EDT [XmlStream,client] RECV: <?xml version='1.0'?><stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept' id='1999007588' from='butterfat.net'>
+2007/10/14 15:38 EDT [XmlStream,client] SEND: <handshake>9472cd6ef73d0a02e7474baef3d9d3aaf8904d43</handshake>
+2007/10/14 15:38 EDT [XmlStream,client] RECV: <handshake/>
+2007/10/14 15:38 EDT [XmlStream,client] RECV: <presence from='tofu@thetofu.com/Home' to='test@chat.butterfat.net/tofu' id='299'><x xmlns='vcard-temp:x:update'><photo>52b8e39906b74e739d8783b86b0108ea243e4ad0</photo></x><c xmlns='http://jabber.org/protocol/caps' node='http://gajim.org/caps' ext='ftrans' ver='0.10.1.3'/><x xmlns='http://jabber.org/protocol/muc'/></presence>
+2007/10/14 15:38 EDT [XmlStream,client] adbapi connecting: pyPgSQL.PgSQL {'client_encoding': 'utf-8', 'host': None, 'password': None, 'user': 'tofu', 'database': 'muc'}
+2007/10/14 15:38 EDT [-] Traceback: libpq.DatabaseError: could not connect to server: No such file or directory
+2007/10/14 15:38 EDT [-] 	Is the server running locally and accepting
+2007/10/14 15:38 EDT [-] 	connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
+2007/10/14 15:38 EDT [-] 
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/threading.py:422:run
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/python/threadpool.py:148:_worker
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/python/context.py:59:callWithContext
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/python/context.py:37:callWithContext
+2007/10/14 15:38 EDT [-] --- <exception caught here> ---
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/internet/threads.py:25:_putResultInDeferred
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/enterprise/adbapi.py:371:_runInteraction
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/enterprise/adbapi.py:32:__init__
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/enterprise/adbapi.py:69:reconnect
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/twisted/enterprise/adbapi.py:341:connect
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/pyPgSQL/PgSQL.py:2211:connect
+2007/10/14 15:38 EDT [-] /usr/lib/python2.4/site-packages/pyPgSQL/PgSQL.py:2331:__init__
+2007/02/15 09:58 EST [-] Log opened.
+2007/02/15 09:58 EST [-] twistd 2.4.0 (/usr/bin/python 2.4.4) starting up
+2007/02/15 09:58 EST [-] reactor class: <class 'twisted.internet.selectreactor.SelectReactor'>
+2007/02/15 09:58 EST [-] Loading palaver.ta...
+2007/02/15 09:58 EST [-] Traceback (most recent call last):
+2007/02/15 09:58 EST [-]   File "/usr/lib/python2.4/site-packages/twisted/application/app.py", line 159, in getApplication
+2007/02/15 09:58 EST [-]     application = service.loadApplication(filename, style, passphrase)
+2007/02/15 09:58 EST [-]   File "/usr/lib/python2.4/site-packages/twisted/application/service.py", line 303, in loadApplication
+2007/02/15 09:58 EST [-]     application = sob.load(filename, kind, passphrase)
+2007/02/15 09:58 EST [-]   File "/usr/lib/python2.4/site-packages/twisted/persisted/sob.py", line 169, in load
+2007/02/15 09:58 EST [-]     fp = open(filename, mode)
+2007/02/15 09:58 EST [-] IOError: [Errno 2] No such file or directory: 'palaver.ta'
+2007/02/15 09:58 EST [-] Failed to load application: [Errno 2] No such file or directory: 'palaver.ta'
+2007/02/15 09:58 EST [-] Traceback (most recent call last):
+	  File "/usr/bin/twistd", line 25, in ?
+	    run()
+	  File "/usr/lib/python2.4/site-packages/twisted/scripts/twistd.py", line 205, in run
+	    app.run(runApp, ServerOptions)
+	  File "/usr/lib/python2.4/site-packages/twisted/application/app.py", line 278, in run
+	    runApp(config)
+	  File "/usr/lib/python2.4/site-packages/twisted/scripts/twistd.py", line 195, in runApp
+	    application = app.getApplication(config, passphrase)
+	--- <exception caught here> ---
+	  File "/usr/lib/python2.4/site-packages/twisted/application/app.py", line 159, in getApplication
+	    application = service.loadApplication(filename, style, passphrase)
+	  File "/usr/lib/python2.4/site-packages/twisted/application/service.py", line 303, in loadApplication
+	    application = sob.load(filename, kind, passphrase)
+	  File "/usr/lib/python2.4/site-packages/twisted/persisted/sob.py", line 169, in load
+	    fp = open(filename, mode)
+	exceptions.IOError: [Errno 2] No such file or directory: 'palaver.ta'
+	
+2007/02/15 09:58 EST [-] 
+2007/02/15 09:58 EST [-] Log opened.
+2007/02/15 09:58 EST [-] twistd 2.4.0 (/usr/bin/python 2.4.4) starting up
+2007/02/15 09:58 EST [-] reactor class: <class 'twisted.internet.selectreactor.SelectReactor'>
+2007/02/15 09:58 EST [-] Loading palaver.tap...
+2007/02/15 09:58 EST [-] Loaded.
+2007/02/15 09:58 EST [-] Starting factory <twisted.words.protocols.jabber.xmlstream.XmlStreamFactory instance at 0xb7900b8c>
+2007/02/15 09:58 EST [Uninitialized] SEND: <stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept' to='chat.butterfat.net'>
+2007/02/15 09:58 EST [XmlStream,client] RECV: <?xml version='1.0'?><stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:component:accept' id='358779297' from='butterfat.net'>
+2007/02/15 09:58 EST [XmlStream,client] SEND: <handshake>dbf0953d524425f4d73b2b5f79bf166dab3ccf1c</handshake>
+2007/02/15 09:58 EST [XmlStream,client] RECV: <handshake/>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <presence from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net/Tofu' id='171'><x xmlns='vcard-temp:x:update'><photo>52b8e39906b74e739d8783b86b0108ea243e4ad0</photo></x><c xmlns='http://jabber.org/protocol/caps' node='http://gajim.org/caps' ext='ftrans xhtml' ver='0.11.0.2'/><x xmlns='http://jabber.org/protocol/muc'/></presence>
+2007/02/15 10:10 EST [XmlStream,client] =============================== Broadcast presence ===================================
+2007/02/15 10:10 EST [XmlStream,client] Send to tofu@butterfat.net/Home 
+2007/02/15 10:10 EST [XmlStream,client] SEND: <presence xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu'><x xmlns='http://jabber.org/protocol/muc'/><x xmlns='http://jabber.org/protocol/muc#user'><item affiliation='owner' jid='tofu@butterfat.net/Home' role='moderator'/></x><x xmlns='vcard-temp:x:update'><photo>52b8e39906b74e739d8783b86b0108ea243e4ad0</photo></x><c xmlns='http://jabber.org/protocol/caps' node='http://gajim.org/caps' ext='ftrans xhtml' ver='0.11.0.2'/><x xmlns='http://jabber.org/protocol/muc'/></presence>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net/Tofu' type='get' id='172'><vCard xmlns='vcard-temp'/></iq>
+2007/02/15 10:10 EST [XmlStream,client] MUC Error : 
+2007/02/15 10:10 EST [XmlStream,client] [Failure instance: Traceback: palaver.groupchat.NotAllowed: 
+	/usr/lib/python2.4/site-packages/twisted/words/xish/utility.py:21:__call__
+	/home/tofu/src/python/twisted/jabber/ogg/trunk/palaver/palaver/muc.py:510:onIq
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:191:addCallback
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:182:addCallbacks
+	--- <exception caught here> ---
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:307:_runCallbacks
+	/home/tofu/src/python/twisted/jabber/ogg/trunk/palaver/palaver/muc.py:486:process_iq
+	]
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net/Tofu' type='get' id='173'><vCard xmlns='vcard-temp'/></iq>
+2007/02/15 10:10 EST [XmlStream,client] MUC Error : 
+2007/02/15 10:10 EST [XmlStream,client] [Failure instance: Traceback: palaver.groupchat.NotAllowed: 
+	/usr/lib/python2.4/site-packages/twisted/words/xish/utility.py:21:__call__
+	/home/tofu/src/python/twisted/jabber/ogg/trunk/palaver/palaver/muc.py:510:onIq
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:191:addCallback
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:182:addCallbacks
+	--- <exception caught here> ---
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:307:_runCallbacks
+	/home/tofu/src/python/twisted/jabber/ogg/trunk/palaver/palaver/muc.py:486:process_iq
+	]
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='get' id='174'><query xmlns='http://jabber.org/protocol/muc#owner'/></iq>
+2007/02/15 10:10 EST [XmlStream,client] build config
+2007/02/15 10:10 EST [XmlStream,client] SEND: <iq to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net' id='174' type='result'><query xmlns='http://jabber.org/protocol/muc#owner'><x xmlns='jabber:x:data' type='form'><title>Configuration for "testing" Room</title><instructions>Complete this form to configure this chat room.</instructions><field var='FORM_TYPE' type='hidden'><value>http://jabber.org/protocol/muc#roomconfig</value></field><field var='muc#roomconfig_roomname' type='text-single' label='Natural language room name.'><value>testing</value></field><field var='muc#roomconfig_roomdesc' type='text-multi' label='Short description of room.'><value>testing</value></field><field var='muc#roomconfig_subjectchange' type='boolean' label='Allow users to change subject?'><value>1</value></field><field var='privacy' type='boolean' label='Allow users to query others?'><value>0</value></field><field var='muc#roomconfig_inviteonly' type='boolean' label='An invitation is required to enter?'><value>0</value></field><field var='muc#roomconfig_allowinvites' type='boolean' label='Allow users to invite others?'><value>1</value></field><field var='muc#roomconfig_whois' type='list-single' label='Afilliations that may discover REAL JIDs of room occupants.'><option label='Administrators and Moderators only.'><value>admins</value></option><option label='Anyone'><value>anyone</value></option><value>admins</value></field><field type='fixed'><value>The following messages are sent to legacy clients.</value></field><field var='leave' type='text-single' label='Message for user leaving room.'><value/></field><field var='join' type='text-single' label='Message for user joining room.'><value/></field><field var='rename' type='text-single' label='Message for user changing nick.'><value/></field><field var='muc#roomconfig_maxusers' type='list-single' label='Maximum users for this room.'><option label='1'><value>1</value></option><option label='10'><value>10</value></option><option label='20'><value>20</value></option><option label='30'><value>30</value></option><option label='40'><value>40</value></option><option label='50'><value>50</value></option><value>30</value></field><field var='muc#roomconfig_publicroom' type='boolean' label='Turn off public searching of room? Make it hidden.'><value>0</value></field><field var='muc#roomconfig_moderated' type='boolean' label='Make room moderated.'><value>0</value></field><field var='muc#roomconfig_persistent' type='boolean' label='Make room persistent.'><value>0</value></field></x></query></iq>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='get' id='175'><query xmlns='http://jabber.org/protocol/muc#admin'><item affiliation='outcast'/></query></iq>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <iq to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net' id='175' type='result'><query xmlns='http://jabber.org/protocol/muc#admin'/></iq>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='get' id='176'><query xmlns='http://jabber.org/protocol/muc#admin'><item affiliation='member'/></query></iq>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <iq to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net' id='176' type='result'><query xmlns='http://jabber.org/protocol/muc#admin'/></iq>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='get' id='177'><query xmlns='http://jabber.org/protocol/muc#admin'><item affiliation='owner'/></query></iq>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <iq to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net' id='177' type='result'><query xmlns='http://jabber.org/protocol/muc#admin'><item xmlns='jabber:client' affiliation='owner' jid='tofu@butterfat.net'/></query></iq>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='get' id='178'><query xmlns='http://jabber.org/protocol/muc#admin'><item affiliation='admin'/></query></iq>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <iq to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net' id='178' type='result'><query xmlns='http://jabber.org/protocol/muc#admin'/></iq>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='set' id='179'><query xmlns='http://jabber.org/protocol/muc#owner'><x xmlns='jabber:x:data' type='submit'><field var='FORM_TYPE'><value>http://jabber.org/protocol/muc#roomconfig</value></field><field var='muc#roomconfig_roomname'><value>testing</value></field><field var='muc#roomconfig_roomdesc'><value>testing</value></field><field var='muc#roomconfig_subjectchange'><value>1</value></field><field var='privacy'><value>0</value></field><field var='muc#roomconfig_inviteonly'><value>0</value></field><field var='muc#roomconfig_allowinvites'><value>1</value></field><field var='muc#roomconfig_whois'><value>admins</value></field><field var='leave'><value/></field><field var='join'><value/></field><field var='rename'><value/></field><field var='muc#roomconfig_maxusers'><value>30</value></field><field var='muc#roomconfig_publicroom'><value>0</value></field><field var='muc#roomconfig_moderated'><value>0</value></field><field var='muc#roomconfig_persistent'><value>0</value></field></x></query></iq>
+2007/02/15 10:10 EST [XmlStream,client] set config
+2007/02/15 10:10 EST [XmlStream,client] SEND: <iq to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net' id='179' type='result'><query xmlns='http://jabber.org/protocol/muc#owner'/></iq>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <message from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='groupchat' id='180'><subject>testing 1 2 3</subject></message>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu' type='groupchat'><subject xmlns='jabber:component:accept'>testing 1 2 3</subject></message>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <message from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='groupchat' id='181'><body>1</body></message>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>1</body></message>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <message from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='groupchat' id='182'><body>2</body></message>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>2</body></message>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <message from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='groupchat' id='183'><body>3</body></message>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>3</body></message>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <message from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='groupchat' id='184'><body>4</body></message>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>4</body></message>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <message from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='groupchat' id='185'><body>5</body></message>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>5</body></message>
+2007/02/15 10:10 EST [XmlStream,client] RECV: <message from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='groupchat' id='186'><body>6</body></message>
+2007/02/15 10:10 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>6</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <iq from='test@thetofu.com/tkabber' to='chat.butterfat.net' id='14' type='get' xml:lang='en-US'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <iq from='chat.butterfat.net' xml:lang='en-US' to='test@thetofu.com/tkabber' type='result' id='14'><query xmlns='http://jabber.org/protocol/disco#info'><identity category='conference' type='text' name='Multi-User Chat Service'/><feature var='http://jabber.org/protocol/muc'/><feature var='http://jabber.org/protocol/muc#user'/><feature var='http://jabber.org/protocol/muc#owner'/><feature var='http://jabber.org/protocol/muc#admin'/><feature var='http://jabber.org/protocol/disco#items'/><feature var='jabber:iq:version'/><feature var='http://jabber.org/protocol/muc'/></query></iq>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <presence from='test@thetofu.com/tkabber' to='testing@chat.butterfat.net/test' xml:lang='en-US'><status>Available</status><x xmlns='http://jabber.org/protocol/muc'><history maxchars='10000' maxstanzas='20'/></x></presence>
+2007/02/15 10:12 EST [XmlStream,client] we are not legacy
+2007/02/15 10:12 EST [XmlStream,client] =============================== Broadcast presence ===================================
+2007/02/15 10:12 EST [XmlStream,client] Send to tofu@butterfat.net/Home 
+2007/02/15 10:12 EST [XmlStream,client] SEND: <presence xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/test'><x xmlns='http://jabber.org/protocol/muc'/><x xmlns='http://jabber.org/protocol/muc#user'><item affiliation='none' jid='test@thetofu.com/tkabber' role='participant'/></x><status xmlns='jabber:component:accept'>Available</status><x xmlns='http://jabber.org/protocol/muc'><history maxchars='10000' maxstanzas='20'/></x><status xmlns='jabber:component:accept'>Available</status></presence>
+2007/02/15 10:12 EST [XmlStream,client] Send to test@thetofu.com/tkabber 
+2007/02/15 10:12 EST [XmlStream,client] SEND: <presence xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/test'><x xmlns='http://jabber.org/protocol/muc'/><x xmlns='http://jabber.org/protocol/muc#user'><item affiliation='none' role='participant'/></x><status xmlns='jabber:component:accept'>Available</status><x xmlns='http://jabber.org/protocol/muc'><history maxchars='10000' maxstanzas='20'/></x><status xmlns='jabber:component:accept'>Available</status></presence>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <presence xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/Tofu'><x xmlns='http://jabber.org/protocol/muc'/><x xmlns='http://jabber.org/protocol/muc#user'><item affiliation='owner' role='moderator'/></x></presence>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net' type='groupchat'><subject>testing 1 2 3</subject></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net/test' type='get' id='187'><vCard xmlns='vcard-temp'/></iq>
+2007/02/15 10:12 EST [XmlStream,client] MUC Error : 
+2007/02/15 10:12 EST [XmlStream,client] [Failure instance: Traceback: palaver.groupchat.NotAllowed: 
+	/usr/lib/python2.4/site-packages/twisted/words/xish/utility.py:21:__call__
+	/home/tofu/src/python/twisted/jabber/ogg/trunk/palaver/palaver/muc.py:510:onIq
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:191:addCallback
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:182:addCallbacks
+	--- <exception caught here> ---
+	/usr/lib/python2.4/site-packages/twisted/internet/defer.py:307:_runCallbacks
+	/home/tofu/src/python/twisted/jabber/ogg/trunk/palaver/palaver/muc.py:486:process_iq
+	]
+2007/02/15 10:12 EST [-] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>1</body><x xmlns='jabber:x:delay' stamp='20070215T15:10:35' from='testing@chat.butterfat.net/Tofu'/><body xmlns='jabber:component:accept'>1</body></message>
+2007/02/15 10:12 EST [-] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>2</body><x xmlns='jabber:x:delay' stamp='20070215T15:10:36' from='testing@chat.butterfat.net/Tofu'/><body xmlns='jabber:component:accept'>2</body></message>
+2007/02/15 10:12 EST [-] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>3</body><x xmlns='jabber:x:delay' stamp='20070215T15:10:36' from='testing@chat.butterfat.net/Tofu'/><body xmlns='jabber:component:accept'>3</body></message>
+2007/02/15 10:12 EST [-] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>4</body><x xmlns='jabber:x:delay' stamp='20070215T15:10:38' from='testing@chat.butterfat.net/Tofu'/><body xmlns='jabber:component:accept'>4</body></message>
+2007/02/15 10:12 EST [-] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>5</body><x xmlns='jabber:x:delay' stamp='20070215T15:10:38' from='testing@chat.butterfat.net/Tofu'/><body xmlns='jabber:component:accept'>5</body></message>
+2007/02/15 10:12 EST [-] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/Tofu' type='groupchat'><body xmlns='jabber:component:accept'>6</body><x xmlns='jabber:x:delay' stamp='20070215T15:10:38' from='testing@chat.butterfat.net/Tofu'/><body xmlns='jabber:component:accept'>6</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <message from='test@thetofu.com/tkabber' to='testing@chat.butterfat.net' type='groupchat' id='1' xml:lang='en-US'><body>1</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>1</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>1</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <message from='test@thetofu.com/tkabber' to='testing@chat.butterfat.net' type='groupchat' id='2' xml:lang='en-US'><body>2</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>2</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>2</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <message from='test@thetofu.com/tkabber' to='testing@chat.butterfat.net' type='groupchat' id='3' xml:lang='en-US'><body>3</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>3</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>3</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <message from='test@thetofu.com/tkabber' to='testing@chat.butterfat.net' type='groupchat' id='4' xml:lang='en-US'><body>4</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>4</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>4</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <message from='test@thetofu.com/tkabber' to='testing@chat.butterfat.net' type='groupchat' id='5' xml:lang='en-US'><body>5</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>5</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>5</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <message from='test@thetofu.com/tkabber' to='testing@chat.butterfat.net' type='groupchat' id='6' xml:lang='en-US'><body>6</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>6</body></message>
+2007/02/15 10:12 EST [XmlStream,client] SEND: <message xmlns='jabber:client' to='test@thetofu.com/tkabber' from='testing@chat.butterfat.net/test' type='groupchat'><body xmlns='jabber:component:accept'>6</body></message>
+2007/02/15 10:12 EST [XmlStream,client] RECV: <iq from='tofu@butterfat.net/Home' to='testing@chat.butterfat.net' type='set' id='188'><query xmlns='http://jabber.org/protocol/muc#admin'><item nick='test' role='none'><reason>test kick</reason></item></query></iq>
+2007/02/15 10:12 EST [XmlStream,client] Traceback: exceptions.AttributeError: 'NoneType' object has no attribute 'lower'
+2007/02/15 10:12 EST [XmlStream,client] /home/tofu/src/python/twisted/jabber/ogg/trunk/palaver/palaver/muc.py:1187:setItems
+2007/02/15 10:12 EST [XmlStream,client] /usr/lib/python2.4/site-packages/palaver/groupchat.py:763:kick
+2007/02/15 10:12 EST [XmlStream,client] /usr/lib/python2.4/site-packages/twisted/internet/defer.py:191:addCallback
+2007/02/15 10:12 EST [XmlStream,client] /usr/lib/python2.4/site-packages/twisted/internet/defer.py:182:addCallbacks
+2007/02/15 10:12 EST [XmlStream,client] --- <exception caught here> ---
+2007/02/15 10:12 EST [XmlStream,client] /usr/lib/python2.4/site-packages/twisted/internet/defer.py:307:_runCallbacks
+2007/02/15 10:12 EST [XmlStream,client] /usr/lib/python2.4/site-packages/palaver/groupchat.py:743:set_kick
+2007/02/15 10:12 EST [XmlStream,client] SEND: <iq to='tofu@butterfat.net/Home' from='testing@chat.butterfat.net' id='188' type='error'><query xmlns='http://jabber.org/protocol/muc#admin'><item nick='test' role='none'><reason>test kick</reason></item></query><error code='500' type='wait'><internal-server-error xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/></error></iq>
