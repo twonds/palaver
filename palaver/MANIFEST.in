@@ -1,0 +1,7 @@
+include README TODO CHANGELOG XEP.txt example-config.xml
+recursive-include palaver *
+recursive-include util *
+recursive-include twisted *
+include db
+include db/muc-pgsql.sql
+global-exclude xml_storage.py mysql_storage.py *~ .cvs* *.pyc .svn*
