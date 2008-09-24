@@ -1,0 +1,8 @@
+This file tracks the major todo items for palaver.  Only those not related
+to the actual multi-user conference JEP are tracked here.  See JEP.txt
+for those relating to the JEP.
+
+* support for muc/conference info in config file
+* support for logging in the config file
+* postgresql database backend
+
