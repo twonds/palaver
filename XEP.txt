@@ -6,7 +6,7 @@ It is numbered exactly like the XEP.
 
 2. Scope
 
-Only covers what is implemented in palaver version 0.5. 
+Only covers what is implemented in palaver version 0.6. 
 
 3. Requirements
 
@@ -53,12 +53,12 @@ include the following:
 
    1. native conversation logging (no in-room bot required)
 
-   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+   - This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.
 
    2. enabling users to request membership in a room
 
-   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+   - This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.
 
    3. enabling occupants to view an occupant's full JID in a non-anonymous 
@@ -83,7 +83,7 @@ include the following:
       (i.e., the privilege to speak) in a moderated room, and to 
       manage the voice list
 
-   - This is NOT implemented in palaver 0.5.
+   - This is NOT implemented in palaver 0.6.
 
 
    8. enabling admins to grant and revoke moderator privileges, 
@@ -132,7 +132,7 @@ the following room types:
 
    3. password-protected or unsecured
 
-   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+   - This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.
 
    4. members-only or open
@@ -141,7 +141,7 @@ the following room types:
 
    5. moderated or unmoderated
 
-   - This is NOT implemented in palaver 0.5, but it is expected to be in a
+   - This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.
 
    6. non-anonymous or semi-anonymous
@@ -174,7 +174,7 @@ the following room types:
 
       Affiliations are implemented as defined by the XEP.
 
-      * Moderated rooms are yet to be implemented in palaver 0.5, but is 
+      * Moderated rooms are yet to be implemented in palaver 0.6, but is 
         expected to be in future versions.
 
       * Owners and Admins can change the status of people equal to their
@@ -201,7 +201,7 @@ the following room types:
 
 	  6.3.2. Basic MUC Protocol
 	   
-	    In palaver 0.5 the x stanza is accepted but it is not registered
+	    In palaver 0.6 the x stanza is accepted but it is not registered
            as a client who supports the MUC protocol. This will be implemented
            in future versions.
 	  
@@ -223,12 +223,12 @@ the following room types:
         
           6.3.7. Password-Protected Rooms
            
-          This is NOT implemented in palaver 0.5, but it is expected to be in a
+          This is NOT implemented in palaver 0.6, but it is expected to be in a
           future version.		
 	  
 	  6.3.8. Members-Only Rooms
            
-          This is NOT implemented in palaver 0.5, but it is expected to be in a
+          This is NOT implemented in palaver 0.6, but it is expected to be in a
           future version.		
 	  
 	  6.3.9. Banned Users
@@ -250,13 +250,13 @@ the following room types:
 	  
           6.3.13. Managing Discussion History
 	  
-	  History can be configured via room configuration, but palaver 0.5 
+	  History can be configured via room configuration, but palaver 0.6 
           ignores the history stanza in the x MUC stanza. This is expected in
           future versions. 
 
 	  6.3.14. Locked Room
 	  
-          This is NOT implemented in palaver 0.5, but it is expected to be in a
+          This is NOT implemented in palaver 0.6, but it is expected to be in a
           future version.		
 
 	  6.3.15. Nonexistent Room
@@ -278,12 +278,12 @@ the following room types:
 
      6.7. Inviting Another User to a Room
      
-     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.		
 
      6.8. Converting a One-to-One Chat Into a Conference
 
-     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.		
      
      6.9. Occupant Modification of the Room Subject
@@ -300,80 +300,80 @@ the following room types:
 
      6.12. Registering with a Room
      
-     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.		
 
      6.13. Discovering Reserved Room Nickname
 
-     This is NOT implemented in palaver 0.5, but it is expected to be in a
+     This is NOT implemented in palaver 0.6, but it is expected to be in a
      future version.		
 
 7. Moderator Use Cases
 
    7.1. Modifying the Room Subject
    
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
 
    7.2. Kicking an Occupant
 
-   This IS implemented in palaver. In version 0.5, Actor, Reason, and 
+   This IS implemented in palaver. In version 0.6, Actor, Reason, and 
    status codes are not sent. This is expected to be implemented in future
    versions.
 
    7.3. Granting Voice to a Visitor
  
-   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   This is NOT implemented in palaver 0.6, but it is expected to be in a
    future version.		
   
    7.4. Revoking Voice from a Participant
 
-   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   This is NOT implemented in palaver 0.6, but it is expected to be in a
    future version.		
    
    7.5. Modifying the Voice List
 
-   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   This is NOT implemented in palaver 0.6, but it is expected to be in a
    future version.		
 
 8. Admin Use Cases
 
    8.1. Banning a User
 
-   This IS implemented in palaver. In version 0.5, Actor, Reason, and 
+   This IS implemented in palaver. In version 0.6, Actor, Reason, and 
    status codes are not sent. This is expected to be implemented in future
    versions.
 
    8.2. Modifying the Ban List
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
 
    8.3. Granting Membership
 
-   This IS implemented in palaver  0.5, but not tested for completeness. 
+   This IS implemented in palaver  0.6, but not tested for completeness. 
 
    8.4. Revoking Membership
 
-   This IS implemented in palaver  0.5, but not tested for completeness. 
+   This IS implemented in palaver  0.6, but not tested for completeness. 
 
    8.5. Modifying the Member List
 
-   This IS implemented in palaver  0.5, but not tested for completeness. 
+   This IS implemented in palaver  0.6, but not tested for completeness. 
 
    8.6. Granting Moderator Privileges
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
 
    8.7. Revoking Moderator Privileges
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
 
    8.8. Modifying the Moderator List
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
 
    8.9. Approving Registration Requests
 
-   This is NOT implemented in palaver 0.5, but it is expected to be in a
+   This is NOT implemented in palaver 0.6, but it is expected to be in a
    future version.		
 
 9. Owner Use Cases
@@ -389,31 +389,31 @@ the following room types:
 
    9.2. Subsequent Room Configuration
    
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
 
    9.3. Granting Ownership Privileges
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
    
    9.4. Revoking Ownership Privileges
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
    
    9.5. Modifying the Owner List
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
    
    9.6. Granting Administrative Privileges
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
    
    9.7. Revoking Administrative Privileges
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
    
    9.8. Modifying the Admin List
 
-   This IS implemented in palaver 0.5, but not tested for completeness. 
+   This IS implemented in palaver 0.6, but not tested for completeness. 
    
    9.9. Destroying a Room
 

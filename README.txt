@@ -161,7 +161,7 @@ Bugs, Support, and Mailing Lists
 If you find a bug we would greatly appreciate hearing about it.  A bug
 reporting interface and tracker is available on the web at:
 
-  http://onlinegamegroup.com/projects/palaver
+  http://code.stanziq.com/palaver
 
 To report a new bug clikc on 'New Ticket'.  To search bugs, use the search
 box at the upper right corner.
@@ -171,15 +171,15 @@ before submitting a new issue.  This helps reduce duplicate reports.
 
 General questions and support may be answered by searching the wiki at:
 
-  http://onlinegamegroup.com/projects/palaver
+  http://code.stanziq.com/palaver
 
 or by posting or reading the palaver-dev mailing list:
 
-  http://onlinegamegroup.com/cgi-bin/mailman/listinfo/palaver-dev
+  http://groups.google.com/group/palaver-xmpp
 
 Commit messages and bug traffic are sent to the palaver-issues list:
 
-  http://onlinegamegroup.com/cgi-bin/mailman/listinfo/palaver-issues
+  http://groups.google.com/group/palaver-xmpp
 
 Code Repository and Contributions
 =================================
@@ -187,7 +187,7 @@ Code Repository and Contributions
 The current and past versions of palaver can always be found in the Subversion
 repository.  This repository may be browsed online at:
 
-  http://onlinegamegroup.com/projects/palaver/browser
+  https://code.stanziq.com/svn/palaver
 
 Contributions are welcome from anyone.  Please send them to the palaver-dev
 mailing list, or file bugs with patches attached.
