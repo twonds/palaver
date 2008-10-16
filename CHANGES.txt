@@ -1,6 +1,7 @@
 Version 0.6
  * Query improvements in the sql backends
- * Memcache support
+ * Memcache support in pgsql backend
+ * Memcache backend
  * Bug fixes for protocol issues
  * Bug fixes for backend/storage issues
  * Speed improvements for overall performance
