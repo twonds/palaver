@@ -7,7 +7,7 @@ import os
 
 
 setup(name='palaver',
-      version='0.7',
+      version='0.6',
       description='Palaver, a twisted multi-user chat jabber component.',
       author='Christopher Zorn',
       author_email='tofu@thetofu.com',
