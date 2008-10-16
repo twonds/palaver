@@ -1,8 +1,7 @@
 # Copyright (c) 2005 - 2008  Christopher Zorn, OGG, LLC 
 # See LICENSE.txt for details
-import copy
 
-from twisted.internet import defer, reactor
+from twisted.internet import defer
 from twisted.python import log
 from twisted.words.protocols.jabber import jid
 from zope.interface import implements

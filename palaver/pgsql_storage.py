@@ -1,13 +1,13 @@
 # Copyright (c) 2005 - 2008 Christopher Zorn, OGG, LLC 
 # See LICENSE.txt for details
-import weakref, threading
+
 import string
-import thread, threading
+import thread
 import time
 from twisted.enterprise import adbapi
 from twisted.python import log, failure
 from twisted.internet import defer, reactor
-from twisted.words.protocols.jabber import jid
+
 from zope.interface import implements
 import cPickle as pickle
 import groupchat
@@ -993,7 +993,7 @@ class Storage:
         
     def _get_role(self, conn, room, user, host = None):
         role = None
-        roster = self._getRosterFromCache(room_id)
+        roster = self._getRosterFromCache(room)
         if roster:
             return roster[7]
         cursor = conn.cursor()

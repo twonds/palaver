@@ -2,11 +2,10 @@
  Copyright (c) 2005-2008 Christopher Zorn, OGG, LLC 
  See LICENSE.txt for details
 """
-from twisted.words.protocols.jabber import jid, client, component
-from twisted.application import internet, service
-from twisted.internet import interfaces, defer, reactor
-from twisted.python import usage, log
-from twisted.words.xish import domish, xpath, utility
+from twisted.words.protocols.jabber import jid
+from twisted.application import service
+from twisted.internet import defer
+from twisted.python import log
 
 
 from zope.interface import Interface, implements
