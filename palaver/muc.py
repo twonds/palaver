@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 # MUC component service.
 # 
-# Copyright (c) 2005-2007 Christopher Zorn, OGG, LLC 
+# Copyright (c) 2005-2008 Christopher Zorn, OGG, LLC 
 # See LICENSE.txt for details
 
 from twisted.words.protocols.jabber import jid, xmlstream

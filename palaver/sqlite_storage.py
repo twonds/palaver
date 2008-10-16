@@ -1,4 +1,4 @@
-# Copyright (c) 2005 - 2007 Christopher Zorn, OGG, LLC 
+# Copyright (c) 2005 - 2008 Christopher Zorn, OGG, LLC 
 # See LICENSE.txt for details
 
 
