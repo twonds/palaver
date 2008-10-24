@@ -252,6 +252,39 @@ class XEP045Tests(unittest.TestCase):
         self.palaver_xs.dataReceived(CLIENT_XML)
         return self.doWait(_cbCreateRoom, 2)
 
+
+    def testNameSpaceMessages(self):
+        """ Test send strange chars to room ......................................................"""
+
+
+        def testRoom(t):
+            while len(self.wstream.entity.children)>1:
+                test_elem = self.wstream.entity.children.pop()
+                self.failUnless(test_elem.body.uri==test_elem.uri, 'uri is wrong')
+                self.failUnless(test_elem.name == 'message', 'Not a message returned.')
+                self.failUnless(test_elem['type'] == 'groupchat', 'Error in message type')
+                
+    
+        def _cbCreateRoom(t):
+            self.assertEquals(t, True)
+            test_elem = self.wstream.entity.children.pop()
+                        
+            frm = 'unicode@%s/thirdwitch' % HOSTNAME
+            self._testCreate(test_elem, frm)
+
+            MESSAGE_XML = """<message from='hag66@shakespeare.lit/pda' to='unicode@%s' type='groupchat' id='2822'>
+<body>yes, i know you do </body>
+<nick xmlns="http://jabber.org/protocol/nick">cgrady</nick>
+</message> """ % (HOSTNAME,)
+
+            self.palaver_xs.dataReceived(MESSAGE_XML)
+            return self.doWait(testRoom, 2)
+            
+                
+        CLIENT_XML = """<presence from='%s' to='%s' />""" % ('hag66@shakespeare.lit/pda', 'unicode@%s/thirdwitch' % (HOSTNAME, ))        
+        self.palaver_xs.dataReceived(CLIENT_XML)
+        return self.doWait(_cbCreateRoom, 2)
+
     def test61(self):
         """ Test Section 6.1 http://www.xmpp.org/extensions/xep-0045.html#disco-component """
 

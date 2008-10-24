@@ -186,26 +186,23 @@ class Service(component.Service):
         message['from'] = frm
         message['to']   = to
         message['type'] = typ
-        
         if subject:            
-            if isinstance(subject, types.StringTypes):
-                if subject != '':
-                    s = message.addElement('subject', None, subject)
-            else:
-                message.addChild(subject)
+            if not isinstance(subject, types.StringTypes):
+                subject = getCData(subject)
+            if subject != '':
+                s = message.addElement('subject', None, subject)
             
         if body:
-            if isinstance(body, types.StringTypes):
-                if body != '':
-                    message.addElement('body', None, body)
-            else:
-                message.addChild(body)
-
+            if not isinstance(body, types.StringTypes):
+                body = getCData(body)
+            if body != '':
+                message.addElement('body', None, body)
         for c in children:
             message.addChild(c)
 
         if stz_key:
             message = self.stz_cache.start(stz_key[0], message, stz_key[1], stz_key[2]) 
+        
         self.xmlstream.send(message)
                                  
     def sendPresence(self, to, frm, typ = None, status = None, show= None, children = None, attrs=None, raw_xml = None):
@@ -290,7 +287,7 @@ class Service(component.Service):
             elif user['role'] == 'player' and game_message_type == 'whisper' and m['role'] == 'player':
                 log.msg('Sender is a player who is whispering, do not send to other players')
                 continue
-            
+
             self.sendMessage(m['jid'], frm , body=body, subject=subject, typ=typ, children=children, stz_key = (stz_key, 'to', m['jid']))
         self.stz_cache.stop(stz_key)
                 
@@ -857,7 +854,7 @@ class ComponentServiceFromRoomService(Service):
         
         body    = getattr(chat,'body',None)
         subject = getattr(chat,'subject',None)
-                    
+
         if frm in self.groupchat.sadmins:
             if user:
                 nick = user['nick']
@@ -1358,7 +1355,7 @@ class ComponentServiceFromRoomService(Service):
             # should be return here?
             return d
 
-                
+        
         body = getattr(chat, 'body', None)
 
         extra = []
