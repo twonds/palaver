@@ -4,4 +4,4 @@ for those relating to the XEP.
 
 * support for muc/conference info in config file
 * support for logging in the config file
-
+* better tests

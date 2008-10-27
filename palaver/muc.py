@@ -181,7 +181,7 @@ class Service(component.Service):
             if len(message)>0:
                 self.xmlstream.send(message)
                 return
-
+        
         message = domish.Element((NS_CLIENT,'message'))
         message['from'] = frm
         message['to']   = to
