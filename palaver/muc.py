@@ -6,7 +6,7 @@
 
 from twisted.words.protocols.jabber import jid, xmlstream
 from twisted.application import internet, service
-from twisted.internet import interfaces, defer, reactor, task
+from twisted.internet import interfaces, defer, reactor
 from twisted.python import usage, components, log
 from twisted.words.xish import domish, xpath
 
@@ -27,7 +27,7 @@ from xmpp import jid_escape, jid_unescape
 
 import types
 import groupchat
-from stanziqueue import StanzaQueque
+from stanzaqueue import StanzaQueue
 
 def getCData(elem):
     for n in elem.children:
@@ -595,7 +595,7 @@ class ComponentServiceFromRoomService(Service):
     """
     Handles room occupant actions
     """
-    queue = StanzaQueue(self.onPresence, self.onGroupChat)
+
 
     def __init__(self, groupchat, logger = None):
         Service.__init__(self, groupchat, logger)
@@ -616,8 +616,14 @@ class ComponentServiceFromRoomService(Service):
 
         self.groupchat.setUpHistory(self.jid)
 
-        self.queue.start()
+        self.startQueue()
 
+
+    def startQueue(self):
+        self.queue = self.groupchat.parent.queue
+        self.queue.onPresence = self.onPresence
+        self.queue.onGroupChat = self.onGroupChat
+        self.queue.start()
 
 
     def onMessageError(self, msg):
@@ -746,7 +752,7 @@ class ComponentServiceFromRoomService(Service):
             return
 
         frm = prs['from']
-        if self.stanzaqueue.doDelay(room, frm, prs):
+        if self._doDelay(room, frm, prs):
             return
         
         # check if room is active
@@ -1301,6 +1307,15 @@ class ComponentServiceFromRoomService(Service):
         d.addErrback(self.send)
         
 
+    def _doDelay(self, room, frm, chat):
+        """Do a delay via our queue
+        """
+        # FIXME - this is kinda silly, it will need to be redone when we switch protocols and services
+        return self.groupchat.parent.queue.doDelay(room, frm, chat)
+
+    def _delStzPending(self, room, frm):
+        return self.queue._delStzPending(room, frm)
+
     def onGroupChat(self, chat):
         frm  = chat.getAttribute('from','')
             
@@ -1311,7 +1326,7 @@ class ComponentServiceFromRoomService(Service):
             return
         d = None
 
-        if self.stanzaqueue.doDelay(room, frm, chat):
+        if self._doDelay(room, frm, chat):
             return
 
         subject = getattr(chat, 'subject', None)

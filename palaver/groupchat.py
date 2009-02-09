@@ -13,6 +13,8 @@ import datetime
 
 from xmpp.ns import *
 
+from stanzaqueue import StanzaQueue
+
 AFFILIATION_LIST = ['admin','member','owner','player','outcast']
 
 AFFILIATION_ROLE_MAP = {
@@ -282,6 +284,8 @@ class GroupchatService(service.MultiService):
     sadmins = []
     plugins = {}
     
+    queue = StanzaQueue()
+
     def __init__(self, storage, use_cache = False):
         service.MultiService.__init__(self)
         self.use_cache = use_cache
