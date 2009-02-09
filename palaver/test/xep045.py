@@ -1755,32 +1755,37 @@ class XEP045Tests(unittest.TestCase):
         """
 
         def _cbModify(t):
+            found_unavailable = False
+            found_iq_result   = False
             while len(self.wstream.entity.children) > 0:
                 test_elem = self.wstream.entity.children.pop()
-                if test_elem.name == 'presence':
-                    self.assert_('type' in test_elem.attributes and test_elem['type'] == 'unavailable',
-                                 "Expected type='unavailable' on <presence/>")
+                if test_elem.name == 'presence' \
+                        and 'type' in test_elem.attributes \
+                        and test_elem['type'] == 'unavailable':
+                    found_unavailable = True
                 if test_elem.name == 'iq':
-                    self.assertEquals(test_elem['type'], 'result')
+                    found_iq_result = True
+            self.failUnless(found_unavailable, 'Did not leave room')
+            self.failUnless(found_iq_result, 'Did not change affiliation')
+            # we should check order
 
 
         def modifyAndLeave(t):
-            log.msg('============== modify and leave =======================')
             while len(self.wstream.entity.children) > 0:
                 test_elem = self.wstream.entity.children.pop()
             MODIFY_XML = """
-              <iq from='mercutio@shakespeare.lit' to='darkcave@%(host)s' type='set' id='arbiter_llh_142560'>
+              <iq from='mercutio@shakespeare.lit' to='affiliation@%(host)s' type='set' id='arbiter_llh_142560'>
                 <query xmlns='http://jabber.org/protocol/muc#admin'>
                   <item affiliation='member' jid='juliet@shakespeare.lit' role='visitor'/>
                 </query>
               </iq>
-              <iq from='mercutio@shakespeare.lit' to='darkcave@%(host)s' type='set' id='arbiter_rzp_142561'>
+              <iq from='mercutio@shakespeare.lit' to='affiliation@%(host)s' type='set' id='arbiter_rzp_142561'>
                 <query xmlns='http://jabber.org/protocol/muc#admin'>
                   <item affiliation='member' jid='romeo@shakespeare.lit' role='visitor'/>
                 </query>
               </iq>
-              <presence from='juliet@shakespeare.lit/pda' to='darkcave@%(host)s/juliet' type='unavailable'/>
-              <presence from='romeo@shakespeare.lit/pda' to='darkcave@%(host)s/romeo' type='unavailable'/>
+              <presence from='juliet@shakespeare.lit/pda' to='affiliation@%(host)s/juliet' type='unavailable'/>
+              <presence from='romeo@shakespeare.lit/pda' to='affiliation@%(host)s/romeo' type='unavailable'/>
             """ % {'host': HOSTNAME}
 
             self.palaver_xs.dataReceived(MODIFY_XML)
@@ -1793,10 +1798,10 @@ class XEP045Tests(unittest.TestCase):
             PRESENCE_XML = """
               <presence
                   from='romeo@shakespeare.lit/pda'
-                  to='darkcave@%(host)s/romeo'/>
+                  to='affiliation@%(host)s/romeo'/>
               <presence
                   from='juliet@shakespeare.lit/pda'
-                  to='darkcave@%(host)s/juliet'/>
+                  to='affiliation@%(host)s/juliet'/>
             """ % {'host': HOSTNAME}
 
             self.palaver_xs.dataReceived(PRESENCE_XML)
@@ -1806,7 +1811,7 @@ class XEP045Tests(unittest.TestCase):
         PRESENCE_XML = """
           <presence
               from='mercutio@shakespeare.lit/pda'
-              to='darkcave@%(host)s/mercutio'/>
+              to='affiliation@%(host)s/mercutio'/>
         """ % {'host': HOSTNAME}
 
         self.palaver_xs.dataReceived(PRESENCE_XML)
