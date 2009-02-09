@@ -164,6 +164,10 @@ class Service(component.Service):
                         log.msg('Returned child was not an element. %s', str(child))
         return iq
 
+    def _send(self, iq):
+        self.send(iq)
+        return iq
+
     def handler_wrapper(self, handler, iq):
         try:
             d = handler(iq)
@@ -172,8 +176,9 @@ class Service(component.Service):
 
         d.addCallback(self.success, iq)
         d.addErrback(self.error, iq)
-        d.addCallback(self.send)
+        d.addCallback(self._send)
         iq.handled = True
+        return d
 
     def sendMessage(self, to, frm, typ = 'groupchat', body = None, subject = None, children=[], stz_key = None):
         if stz_key:
@@ -625,6 +630,15 @@ class ComponentServiceFromRoomService(Service):
         self.queue.onGroupChat = self.onGroupChat
         self.queue.start()
 
+
+    def _doDelay(self, room, frm, chat):
+        """Do a delay via our queue
+        """
+        # FIXME - this is kinda silly, it will need to be redone when we switch protocols and services
+        return self.groupchat.parent.queue.doDelay(room, frm, chat)
+
+    def _delStzPending(self, room, frm):
+        return self.queue._delStzPending(room, frm)
 
     def onMessageError(self, msg):
         if msg.hasAttribute('type') and msg['type'] == 'error':
@@ -1307,14 +1321,6 @@ class ComponentServiceFromRoomService(Service):
         d.addErrback(self.send)
         
 
-    def _doDelay(self, room, frm, chat):
-        """Do a delay via our queue
-        """
-        # FIXME - this is kinda silly, it will need to be redone when we switch protocols and services
-        return self.groupchat.parent.queue.doDelay(room, frm, chat)
-
-    def _delStzPending(self, room, frm):
-        return self.queue._delStzPending(room, frm)
 
     def onGroupChat(self, chat):
         frm  = chat.getAttribute('from','')
@@ -1368,6 +1374,23 @@ class ComponentServiceFromAdminService(Service):
     def __init__(self, groupchat):
         Service.__init__(self, groupchat)
         
+        self.startQueue()
+
+
+    def startQueue(self):
+        self.queue = self.groupchat.parent.queue
+        self.queue.onIqAdmin = self.onAdmin
+        self.queue.start()
+
+
+    def _doDelay(self, room, frm, chat):
+        """Do a delay via our queue
+        """
+        # FIXME - this is kinda silly, it will need to be redone when we switch protocols and services
+        return self.groupchat.parent.queue.doDelay(room, frm, chat)
+
+    def _delStzPending(self, room, frm):
+        return self.queue._delStzPending(room, frm)
 
     def componentConnected(self, xmlstream):
         self.jid = xmlstream.authenticator.otherHost
@@ -1655,6 +1678,14 @@ class ComponentServiceFromAdminService(Service):
 
         return []
 
+
+    def _adminCb(self, iq):
+        # reversed attrbiutes because this is a result
+        room = jid_unescape(jid.internJID(iq['from']).user)
+        frm  = iq.getAttribute('to')
+        self._delStzPending(jid_unescape(room), frm)
+        return iq
+
     def onAdmin(self, iq):
         if getattr(iq, 'handled',False):
             return
@@ -1665,34 +1696,40 @@ class ComponentServiceFromAdminService(Service):
 
         if iq.query.uri and iq.query.uri != NS_MUC_ADMIN and iq.query.uri != NS_MUC_OWNER:
             return
-
-        
         # TODO - move a way to unlock the rooms without an admin service
         typ  = iq.getAttribute('type')
         
         if typ == 'error':
             return
+
         room = jid_unescape(jid.internJID(iq['to']).user)
+        frm  = iq.getAttribute('from')
         item = getattr(iq.query,'item',None)
         x    = getattr(iq.query,'x',None)
         
+        if self._doDelay(room, frm, iq):
+            return
+
+        d = None
         if typ == 'get' and len(iq.query.children)==0:
             # request for configuration of room
-            self.handler_wrapper(self.getConfig, iq)
+            d = self.handler_wrapper(self.getConfig, iq)
         elif item and typ == 'get':
-            self.handler_wrapper(self.getItems, iq)
+            d = self.handler_wrapper(self.getItems, iq)
         elif item and typ == 'set':
-            self.handler_wrapper(self.setItems, iq)
+            d = self.handler_wrapper(self.setItems, iq)
         elif x and typ == 'set':
             if x.hasAttribute('type') and x['type'] == 'cancel':
-                self.handler_wrapper(self.cancelConfig, iq)
+                d = self.handler_wrapper(self.cancelConfig, iq)
             elif x.hasAttribute('type') and x['type'] == 'submit':
-                self.handler_wrapper(self.setConfig, iq)
+                d = self.handler_wrapper(self.setConfig, iq)
 
         destroy = getattr(iq.query, 'destroy', None)
         if destroy:
-            self.handler_wrapper(self.destroyRoom, iq)
+            d = self.handler_wrapper(self.destroyRoom, iq)
 
+        if d:
+            d.addBoth(self._adminCb)
 
     def destroyRoom(self, iq):
         room = jid_unescape(jid.internJID(iq['to']).user)

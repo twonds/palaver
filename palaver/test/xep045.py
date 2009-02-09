@@ -130,6 +130,10 @@ class XEP045Tests(unittest.TestCase):
         self.assertEquals(xpath.matches("/presence[@from='"+frm+"']/x[@xmlns='http://jabber.org/protocol/muc#user']/item[@role='moderator']", test_elem), 1)
         
 
+    def _clearElems(self):
+        while len(self.wstream.entity.children)>1:
+            test_elem = self.wstream.entity.children.pop()
+
     def doWait(self, cb, num, timeout=5):
         d = defer.Deferred()
         self._waitForData(num,d, timeout)
@@ -170,8 +174,7 @@ class XEP045Tests(unittest.TestCase):
             
 
         def testRoom(t):
-            while len(self.wstream.entity.children)>1:
-                test_elem = self.wstream.entity.children.pop()
+            self._clearElems()
             # join the room again and see if we get the status code
             CLIENT_XML = """<presence from='%s' to='%s'>
     <x xmlns='http://jabber.org/protocol/muc'/>
@@ -182,8 +185,7 @@ class XEP045Tests(unittest.TestCase):
         def leaveRoom(t):
             test_elem = self.wstream.entity.children.pop()
             self.failUnless(xpath.matches("/iq[@type='result']", test_elem), 'Invalid iq result.')
-            while len(self.wstream.entity.children)>1:
-                test_elem = self.wstream.entity.children.pop()
+            self._clearElems()
 
             CLIENT_XML = """<presence from='%s' to='%s' type='unavailable'>
     <x xmlns='http://jabber.org/protocol/muc'/>
@@ -197,7 +199,6 @@ class XEP045Tests(unittest.TestCase):
         def _cbCreateRoom(t):
             self.assertEquals(t, True)
             test_elem = self.wstream.entity.children.pop()
-                        
             frm = 'delete@%s/thirdwitch' % HOSTNAME
             self._testCreate(test_elem, frm)
 
@@ -1747,9 +1748,6 @@ class XEP045Tests(unittest.TestCase):
         self.palaver_xs.dataReceived(CLIENT_XML)
         return self.doWait(_cbCreateRoom, 2)        
 
-    def _print(self, elem):
-        print
-        print elem.toXml()
 
     def testAffiliateChangeAndExitRaceCondition(self):
         """
@@ -1757,10 +1755,6 @@ class XEP045Tests(unittest.TestCase):
         """
 
         def _cbModify(t):
-            #for i in range(0, len(self.wstream.entity.children)):
-            #for i in range(0,5):
-            found_bad_presence = False
-            found_bad_iq       = False
             while len(self.wstream.entity.children) > 0:
                 test_elem = self.wstream.entity.children.pop()
                 if test_elem.name == 'presence':
