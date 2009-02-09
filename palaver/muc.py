@@ -27,7 +27,7 @@ from xmpp import jid_escape, jid_unescape
 
 import types
 import groupchat
-
+from stanziqueue import StanzaQueque
 
 def getCData(elem):
     for n in elem.children:
@@ -595,17 +595,14 @@ class ComponentServiceFromRoomService(Service):
     """
     Handles room occupant actions
     """
+    queue = StanzaQueue(self.onPresence, self.onGroupChat)
 
     def __init__(self, groupchat, logger = None):
         Service.__init__(self, groupchat, logger)
         self.logger = logger
+
         self.prs_queue   = {}
         self.msg_queue   = {}
-        self.stz_pending = {}
-                
-        self.delayed_queue = []
-        self.delayed_queue_call = None
-
                 
     def componentConnected(self, xmlstream):
         self.jid = xmlstream.authenticator.otherHost
@@ -619,36 +616,7 @@ class ComponentServiceFromRoomService(Service):
 
         self.groupchat.setUpHistory(self.jid)
 
-        self.delayed_queue_call = task.LoopingCall(self._handleDelayedQueue)
-        self.delayed_queue_call.start(1)
-
-    def _handleDelayedQueue(self):
-        new_queue = []
-        while len(self.delayed_queue) > 0:
-            d = self.delayed_queue.pop()
-
-            if self.stz_pending.has_key(d['room'].lower()+d['stz']['from'].lower()):
-                # wait patiently 
-                new_queue.append(d)
-            elif d['stz'].name == 'presence':
-                self.onPresence(d['stz'])
-            elif d['stz'].name == 'message':
-                self.onGroupChat(d['stz'])                
-
-        self.delayed_queue = new_queue
-
-
-    def _doDelay(self, room, frm, stz):
-        if self.stz_pending.has_key(room.lower()+frm.lower()):
-            # add to delayed queue
-            self.delayed_queue.append({'room': room, 'stz': stz})
-            return True
-        self.stz_pending[room.lower()+frm.lower()] = True
-        return False
-
-    def _delStzPending(self, room, user):
-        if self.stz_pending.has_key(room.lower()+user.lower()):
-            del self.stz_pending[room.lower()+user.lower()]
+        self.queue.start()
 
 
 
@@ -778,7 +746,7 @@ class ComponentServiceFromRoomService(Service):
             return
 
         frm = prs['from']
-        if self._doDelay(room, frm, prs):
+        if self.stanzaqueue.doDelay(room, frm, prs):
             return
         
         # check if room is active
@@ -1343,7 +1311,7 @@ class ComponentServiceFromRoomService(Service):
             return
         d = None
 
-        if self._doDelay(room, frm, chat):
+        if self.stanzaqueue.doDelay(room, frm, chat):
             return
 
         subject = getattr(chat, 'subject', None)
@@ -1553,6 +1521,10 @@ class ComponentServiceFromAdminService(Service):
         item_type = {}
         d = None
         # FIXME - need to handle multiple items
+        
+        # If we change nick or affiliation then we need to queue up presence till
+        # this request finishes. 
+        
         if item.hasAttribute('jid'):
             item_type['jid'] = item['jid']
             n = item['jid']
@@ -2088,6 +2060,5 @@ class ComponentServiceFromAdminService(Service):
 components.registerAdapter(ComponentServiceFromAdminService,
                            groupchat.IAdminService,
                            IService)
-
 
     

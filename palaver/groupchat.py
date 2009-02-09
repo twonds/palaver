@@ -291,7 +291,6 @@ class GroupchatService(service.MultiService):
 
         self.active_rooms = []
 
-
     def resetCache(self):
         try:
             self.storage.resetCache()

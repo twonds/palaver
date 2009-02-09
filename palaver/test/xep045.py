@@ -1747,6 +1747,77 @@ class XEP045Tests(unittest.TestCase):
         self.palaver_xs.dataReceived(CLIENT_XML)
         return self.doWait(_cbCreateRoom, 2)        
 
+    def _print(self, elem):
+        print
+        print elem.toXml()
+
+    def testAffiliateChangeAndExitRaceCondition(self):
+        """
+        This is a test for a race condition when an affiliation changes immediately before a user leaves.
+        """
+
+        def _cbModify(t):
+            #for i in range(0, len(self.wstream.entity.children)):
+            #for i in range(0,5):
+            found_bad_presence = False
+            found_bad_iq       = False
+            while len(self.wstream.entity.children) > 0:
+                test_elem = self.wstream.entity.children.pop()
+                if test_elem.name == 'presence':
+                    self.assert_('type' in test_elem.attributes and test_elem['type'] == 'unavailable',
+                                 "Expected type='unavailable' on <presence/>")
+                if test_elem.name == 'iq':
+                    self.assertEquals(test_elem['type'], 'result')
+
+
+        def modifyAndLeave(t):
+            log.msg('============== modify and leave =======================')
+            while len(self.wstream.entity.children) > 0:
+                test_elem = self.wstream.entity.children.pop()
+            MODIFY_XML = """
+              <iq from='mercutio@shakespeare.lit' to='darkcave@%(host)s' type='set' id='arbiter_llh_142560'>
+                <query xmlns='http://jabber.org/protocol/muc#admin'>
+                  <item affiliation='member' jid='juliet@shakespeare.lit' role='visitor'/>
+                </query>
+              </iq>
+              <iq from='mercutio@shakespeare.lit' to='darkcave@%(host)s' type='set' id='arbiter_rzp_142561'>
+                <query xmlns='http://jabber.org/protocol/muc#admin'>
+                  <item affiliation='member' jid='romeo@shakespeare.lit' role='visitor'/>
+                </query>
+              </iq>
+              <presence from='juliet@shakespeare.lit/pda' to='darkcave@%(host)s/juliet' type='unavailable'/>
+              <presence from='romeo@shakespeare.lit/pda' to='darkcave@%(host)s/romeo' type='unavailable'/>
+            """ % {'host': HOSTNAME}
+
+            self.palaver_xs.dataReceived(MODIFY_XML)
+            return self.doWait(_cbModify, 10)
+
+
+        def sendJoin(t):
+            while len(self.wstream.entity.children) > 0:
+                test_elem = self.wstream.entity.children.pop()
+            PRESENCE_XML = """
+              <presence
+                  from='romeo@shakespeare.lit/pda'
+                  to='darkcave@%(host)s/romeo'/>
+              <presence
+                  from='juliet@shakespeare.lit/pda'
+                  to='darkcave@%(host)s/juliet'/>
+            """ % {'host': HOSTNAME}
+
+            self.palaver_xs.dataReceived(PRESENCE_XML)
+            return self.doWait(modifyAndLeave, 4)
+
+
+        PRESENCE_XML = """
+          <presence
+              from='mercutio@shakespeare.lit/pda'
+              to='darkcave@%(host)s/mercutio'/>
+        """ % {'host': HOSTNAME}
+
+        self.palaver_xs.dataReceived(PRESENCE_XML)
+        return self.doWait(sendJoin, 2)
+
 
     def testCapsAndEncodedNames(self):
         """
