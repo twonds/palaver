@@ -25,7 +25,7 @@ from palaver import storage, groupchat, palaver
 from palaver import pgsql_storage
 from palaver import dir_storage, memory_storage
 
-from palaver.test import  readlog
+from palaver.test import  readlog, xep045
 
 PASSWORD = 'palaveriscool'
 HOSTNAME = 'palaver.localhost'
@@ -74,7 +74,7 @@ class TestStorage(pgsql_storage.Storage):
         self.setInCache(key.lower(), pickle.dumps(dbroom))
         self.test_hidden_cache_sets += 1
 
-class ProtocolTests(unittest.TestCase):
+class ProtocolTests(xep045.XEP045Tests):
     """
     """
 

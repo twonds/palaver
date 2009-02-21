@@ -1755,17 +1755,22 @@ class XEP045Tests(unittest.TestCase):
         """
 
         def _cbModify(t):
-            found_unavailable = False
+            found_unavailable = 0
             found_iq_result   = False
+            # The last element in the children list is the last one received. 
+            # The first elements we see should be unavailable
             while len(self.wstream.entity.children) > 0:
                 test_elem = self.wstream.entity.children.pop()
                 if test_elem.name == 'presence' \
                         and 'type' in test_elem.attributes \
                         and test_elem['type'] == 'unavailable':
-                    found_unavailable = True
+                    found_unavailable += 1
+                elif test_elem.name == 'presence' and found_unavailable < 3:
+                    self.fail('The affiliation change needs to happen before the user leaves the room. %s' % (test_elem.toXml()))
+
                 if test_elem.name == 'iq':
                     found_iq_result = True
-            self.failUnless(found_unavailable, 'Did not leave room')
+
             self.failUnless(found_iq_result, 'Did not change affiliation')
             # we should check order
 
