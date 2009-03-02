@@ -1205,8 +1205,10 @@ class AdminService(service.Service):
                     return self.parent.deleteRoom(room, host=host)
                 else:
                     raise NotAllowed
+            except NotAllowed:
+                raise NotAllowed
             except:
-                raise RoomNotFound
+                return True
             
         d = self.parent.storage.getRoom(room, host=host)
         d.addCallback(destroy)

@@ -57,7 +57,6 @@ class ProtocolTests(unittest.TestCase):
         """
         Set up harness and palaver connection to the harness
         """
-        # os.system("sqlite3 /tmp/test.db < ../
         # PALAVER set up
         
         # set up Jabber Component
@@ -1676,11 +1675,7 @@ class ProtocolTests(unittest.TestCase):
             for p in pending:
                 if p.active():
                     p.cancel()
-        for root, dirs, files in os.walk('/tmp/palaver_test/'):
-            for f in files:
-                os.unlink(root+f)
-            
-        os.rmdir('/tmp/palaver_test/')
+        
     
         
 

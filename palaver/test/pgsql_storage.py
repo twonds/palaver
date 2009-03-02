@@ -1634,12 +1634,7 @@ class ProtocolTests(xep045.XEP045Tests):
             for p in pending:
                 if p.active():
                     p.cancel()
-        for root, dirs, files in os.walk('/tmp/palaver_test/'):
-            for f in files:
-                os.unlink(root+f)
             
-        os.rmdir('/tmp/palaver_test/')
-    
         
 
 class StorageTests(unittest.TestCase):

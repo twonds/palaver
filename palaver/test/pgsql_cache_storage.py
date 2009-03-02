@@ -2198,11 +2198,7 @@ lo, please solve this problem. You can also send &apos;help&apos; if you are stu
 
         
     def tearDownClass(self):
-        for root, dirs, files in os.walk('/tmp/palaver_test/'):
-            for f in files:
-                os.unlink(root+f)
-            
-        os.rmdir('/tmp/palaver_test/')
+        pass
     
 
 
