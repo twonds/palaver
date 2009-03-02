@@ -1739,7 +1739,8 @@ class ComponentServiceFromAdminService(Service):
             
             if did_it:
                 if not droom:
-                    return did_it
+                    raise groupchat.RoomNotFound
+
                 # send out presence
                 destroy_presence = ""
                 for mem in droom['roster'].values():
