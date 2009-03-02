@@ -156,7 +156,7 @@ class Service(component.Service):
         if q:
             q.children = []
             
-            if result:
+            if len(result)>0:
                 for child in result:
                     if isinstance(child, domish.Element):
                         q.addChild(child)
