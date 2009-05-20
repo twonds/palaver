@@ -19,7 +19,7 @@ except:
 
 from twisted.words.protocols.jabber import component, xmlstream
 
-from palaver import storage, groupchat, palaver
+from palaver import storage, groupchat, palaver, muc
 from palaver import pgsql_storage
 from palaver import dir_storage, memory_storage
 
@@ -1890,3 +1890,77 @@ class XEP045Tests(unittest.TestCase):
         
         self.palaver_xs.dataReceived(CLIENT_XML)
         return self.doWait(_cbCreateRoom, 2)        
+
+
+    def testUnicodePresence(self): 
+        """ Unicode Status messages should be supported ...."""
+
+        def _cb74(t):
+            # grab elements to test
+            child_count = len(self.wstream.entity.children)
+            for i in range(1, child_count):
+                test_elem = self.wstream.entity.children.pop()
+                self.assertEquals(test_elem.name, 'presence')
+                if test_elem['from'] == 'darkcave@%s/oldhag' % (HOSTNAME,):
+                    self.assertEquals(muc.getCData(test_elem.status), u'ä ö and ü  %')
+                    self.assertEquals(str(test_elem.show),'chat')
+                if test_elem['from'] == 'darkcave@%s/testhag' % (HOSTNAME,):
+                    self.assertEquals(xpath.matches("/presence/x[@xmlns='http://jabber.org/protocol/muc#user']/item[@role='participant']", test_elem), 1)
+
+
+        def _cbChangeStatus(t):
+            child_count = len(self.wstream.entity.children)
+            for i in range(1, child_count):
+                test_elem = self.wstream.entity.children.pop()
+                self.assertEquals(test_elem.name, 'presence')
+                if test_elem['from'] == 'darkcave@%s/oldhag' % (HOSTNAME,):
+                    self.assertEquals(muc.getCData(test_elem.status), u'ä ö and ü  %')
+                    self.assertEquals(str(test_elem.show),'chat')
+
+            PRESENCE_XML = """
+<presence
+    from='test@shakespeare.lit/laptop'
+    to='darkcave@%s/testhag' />
+""" % (HOSTNAME, )
+
+
+            self.palaver_xs.dataReceived(PRESENCE_XML)
+        
+            return self.doWait(_cb74, 3)
+
+        def _cbJoin(t):
+            
+            child_count = len(self.wstream.entity.children)
+            for i in range(1, child_count):
+                test_elem = self.wstream.entity.children.pop()
+                self.assertEquals(test_elem.name, 'presence')
+                if test_elem['from'] == 'darkcave@%s/oldhag' % (HOSTNAME,):
+                    self.assertEquals(str(test_elem.status),'gone where the goblins go')
+                    self.assertEquals(str(test_elem.show),'xa')
+            
+            CHANGE_STATUS_XML = """
+<presence
+    from='wiccarocks@shakespeare.lit/laptop'
+    to='darkcave@%s/oldhag'>
+  <show>chat</show>
+  <status>ä ö and ü  %%</status>
+</presence>
+""" % (HOSTNAME, )
+
+            self.palaver_xs.dataReceived(CHANGE_STATUS_XML)
+
+            return self.doWait(_cbChangeStatus, 3)
+                            
+                    
+        JOIN_STATUS_XML = """
+<presence
+    from='wiccarocks@shakespeare.lit/laptop'
+    to='darkcave@%s/oldhag'>
+  <show>xa</show>
+  <status>gone where the goblins go</status>
+</presence>
+        """ % (HOSTNAME, )
+
+        self.palaver_xs.dataReceived(JOIN_STATUS_XML)
+                
+        return self.doWait(_cbJoin, 3)

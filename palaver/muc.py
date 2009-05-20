@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 # MUC component service.
 # 
-# Copyright (c) 2005-2008 Christopher Zorn, OGG, LLC 
+# Copyright (c) 2005-2009 Christopher Zorn, OGG, LLC 
 # See LICENSE.txt for details
 
 from twisted.words.protocols.jabber import jid, xmlstream
@@ -241,7 +241,8 @@ class Service(component.Service):
         if status:
             if isinstance(status, types.StringTypes):
                 if status != '':
-                    child_str = child_str + u"<status>"+status+u"</status>"
+                    status_str = u"<status>%s</status>" % (status,)
+                    child_str = child_str + status_str
             else:
                 child_str = child_str + status.toXml()
 
@@ -249,7 +250,8 @@ class Service(component.Service):
         if show:
             if isinstance(show, types.StringTypes):
                 if show != '':
-                    child_str = child_str + u"<show>"+show+u"</show>"
+                    show_str = u"<show>%s</show>" % (show,)
+                    child_str = child_str + show_str
             else:
                 child_str = child_str + show.toXml()
 
