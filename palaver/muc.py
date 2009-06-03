@@ -941,17 +941,47 @@ class ComponentServiceFromRoomService(Service):
         ignore = False
         if r.has_key('ignore_player') and int(r['ignore_player'])==1:
             ignore = True
-        d.addCallback(lambda _:self.sendHistory(new_user, room, ignore_player=ignore))
+        d.addCallback(lambda _:self.sendHistory(new_user, room, ignore_player=ignore, pres=prs))
                 
         return d
     
-    def sendHistory(self, new_user, room, ignore_player = False):
+    def sendHistory(self, new_user, room, ignore_player = False, pres = None):
         # send history
         # TODO - move this to group chat?
-        
-        if self.groupchat.getHistory(jid_unescape(room), host=self.jid):
-            
-            for h in self.groupchat.getHistory(jid_unescape(room), host=self.jid):
+        # handle <history since='TS'> and <history maxstanzas='value'>
+
+        maxstanzas = None
+        since = None
+
+        if pres:
+            history_attr = getattr(pres, 'history', None)
+            if history_attr == None:
+                x = getattr(pres, 'x', None)
+                if x:
+                    history_attr = getattr(x, 'history', None)
+
+            if history_attr:
+                if history_attr.hasAttribute('maxstanzas'):
+                    maxstanzas = history_attr['maxstanzas']
+                if history_attr.hasAttribute('since'):
+                    since = datetime.datetime.strptime(history_attr['since'],'%Y-%m-%dT%H:%M:%SZ')
+
+        # modification to only get the history list once
+        history_els = self.groupchat.getHistory(jid_unescape(room), host=self.jid)
+        if history_els:
+            # if maxstanzas is set ..  change start index in history list
+            startidx = 0
+            if maxstanzas:
+                if len(history_els) > int(maxstanzas):
+                    startidx = len(history_els) - int(maxstanzas)
+
+            # only iterate through the list from startidx
+            for h in history_els[startidx::]:
+                # check since stamp, if its older ignore it
+                if since:
+                    if h['stamp'] < since:
+                        continue
+
                 # check for size
                 x = domish.Element((NS_X_DELAY,'x'))
                 # TODO - need a check for configuration on show jids
