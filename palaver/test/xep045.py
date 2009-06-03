@@ -547,10 +547,10 @@ class XEP045Tests(unittest.TestCase):
             PRESENCE_XML = """
                     <presence
     from='palaver@shakespeare.lit/pda'
-    to='darkcave@%s/palaverHistory' type='unavailable'/>
+    to='historyorder@%s/palaverHistory' type='unavailable'/>
             <presence
     from='history@shakespeare.lit/pda'
-    to='darkcave@%s/history' type='unavailable'/>
+    to='historyorder@%s/history' type='unavailable'/>
         """ % (HOSTNAME, HOSTNAME, )
 
             self.palaver_xs.dataReceived(PRESENCE_XML)
@@ -565,7 +565,7 @@ class XEP045Tests(unittest.TestCase):
             PRESENCE_XML = """
                     <presence
     from='history@shakespeare.lit/pda'
-    to='darkcave@%s/history'/>
+    to='historyorder@%s/history'/>
         """ % (HOSTNAME,)
 
             self.palaver_xs.dataReceived(PRESENCE_XML)
@@ -577,16 +577,16 @@ class XEP045Tests(unittest.TestCase):
                 test_elem = self.wstream.entity.children.pop()
             # send messages 
             MESSAGE_XML = """
-<message xmlns='jabber:client' to='darkcave@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+<message xmlns='jabber:client' to='historyorder@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
   <body>3</body>
   </message>
-  <message xmlns='jabber:client' to='darkcave@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+  <message xmlns='jabber:client' to='historyorder@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
   <body>2</body>
   </message>
-  <message xmlns='jabber:client' to='darkcave@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+  <message xmlns='jabber:client' to='historyorder@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
   <body>1</body>
   </message>
-  <message xmlns='jabber:client' to='darkcave@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+  <message xmlns='jabber:client' to='historyorder@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
   <body>contact</body>
   </message>
         """ % (HOSTNAME, HOSTNAME, HOSTNAME, HOSTNAME)
@@ -597,7 +597,91 @@ class XEP045Tests(unittest.TestCase):
         PRESENCE_XML = """
                     <presence
     from='palaver@shakespeare.lit/pda'
-    to='darkcave@%s/palaverHistory'/>
+    to='historyorder@%s/palaverHistory'/>
+        """ % (HOSTNAME,)
+
+        self.palaver_xs.dataReceived(PRESENCE_XML)
+        
+        return self.doWait(sendMessages, 2)
+
+
+    def testHistoryMaxStanzas(self):
+        """ Test to make sure we only get the history we want.                        ."""
+        def finish(t):
+            while len(self.wstream.entity.children)>1:
+                test_elem = self.wstream.entity.children.pop()
+                self.assertEqual(test_elem.name, 'presence')
+
+        def testHistory(t):
+            
+            mtest  = filter(lambda el: xpath.matches("/message" , el), self.wstream.entity.children)
+            self.failUnless(len(mtest)==1,'Did not get the correct number of messages')
+            
+
+            while len(self.wstream.entity.children)>1:
+                test_elem = self.wstream.entity.children.pop()
+                
+                
+            # leave room
+
+            PRESENCE_XML = """
+                    <presence
+    from='palaver@shakespeare.lit/pda'
+    to='historymanage@%s/palaverHistory' type='unavailable'/>
+            <presence
+    from='history@shakespeare.lit/pda'
+    to='historymanage@%s/history' type='unavailable'/>
+        """ % (HOSTNAME, HOSTNAME, )
+
+            self.palaver_xs.dataReceived(PRESENCE_XML)
+
+            return self.doWait(finish, 4)
+
+        def sendPresence(t):
+            while len(self.wstream.entity.children)>1:
+                test_elem = self.wstream.entity.children.pop()
+                self.assertEqual(test_elem.name, 'message')
+
+            PRESENCE_XML = """
+<presence
+    from='history@shakespeare.lit/pda'
+    to='historymanage@%s/history'>
+  <x xmlns='http://jabber.org/protocol/muc'>
+    <history maxstanzas='1'/>
+  </x>
+</presence>
+        """ % (HOSTNAME,)
+
+            self.palaver_xs.dataReceived(PRESENCE_XML)
+
+            return self.doWait(testHistory, 14)
+
+        def sendMessages(t):
+            while len(self.wstream.entity.children)>1:
+                test_elem = self.wstream.entity.children.pop()
+            # send messages 
+            MESSAGE_XML = """
+<message xmlns='jabber:client' to='historymanage@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+  <body>3</body>
+  </message>
+  <message xmlns='jabber:client' to='historymanage@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+  <body>2</body>
+  </message>
+  <message xmlns='jabber:client' to='historymanage@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+  <body>1</body>
+  </message>
+  <message xmlns='jabber:client' to='historymanage@%s' from='palaver@shakespeare.lit/pda' type='groupchat'>
+  <body>contact</body>
+  </message>
+        """ % (HOSTNAME, HOSTNAME, HOSTNAME, HOSTNAME)
+
+            self.palaver_xs.dataReceived(MESSAGE_XML)
+            
+            return self.doWait(sendPresence, 16)
+        PRESENCE_XML = """
+                    <presence
+    from='palaver@shakespeare.lit/pda'
+    to='historymanage@%s/palaverHistory'/>
         """ % (HOSTNAME,)
 
         self.palaver_xs.dataReceived(PRESENCE_XML)

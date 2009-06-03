@@ -946,23 +946,20 @@ class ComponentServiceFromRoomService(Service):
         return d
     
     def sendHistory(self, new_user, room, ignore_player = False, pres = None):
-        # send history
-        # TODO - move this to group chat?
-        # handle <history since='TS'> and <history maxstanzas='value'>
-
+        """ send history to a new user in a room.
+         TODO - move this to group chat?
+         handle <history since='TS'> and <history maxstanzas='value'>
+        """
         maxstanzas = None
         since = None
-
-        if pres:
-            history_attr = getattr(pres, 'history', None)
-            if history_attr == None:
-                x = getattr(pres, 'x', None)
-                if x:
-                    history_attr = getattr(x, 'history', None)
-
-            if history_attr:
-                if history_attr.hasAttribute('maxstanzas'):
-                    maxstanzas = history_attr['maxstanzas']
+        if pres is not None:
+            history_attr = None
+            x = getattr(pres, 'x', None)
+            if x is not None:
+                history_attr = getattr(x, 'history', None)
+                
+            if history_attr is not None:
+                maxstanzas = history_attr.getAttribute('maxstanzas', None)
                 if history_attr.hasAttribute('since'):
                     since = datetime.datetime.strptime(history_attr['since'],'%Y-%m-%dT%H:%M:%SZ')
 
@@ -971,14 +968,14 @@ class ComponentServiceFromRoomService(Service):
         if history_els:
             # if maxstanzas is set ..  change start index in history list
             startidx = 0
-            if maxstanzas:
+            if maxstanzas is not None:
                 if len(history_els) > int(maxstanzas):
                     startidx = len(history_els) - int(maxstanzas)
 
             # only iterate through the list from startidx
             for h in history_els[startidx::]:
                 # check since stamp, if its older ignore it
-                if since:
+                if since is not None:
                     if h['stamp'] < since:
                         continue
 
