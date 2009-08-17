@@ -878,17 +878,17 @@ class ComponentServiceFromRoomService(Service):
         
         
     def _joined_room(self, rtup, prs):
-        
+        jabberId, room, host, frm, nick, status, show, legacy = self._getPresenceInfo(prs)
         if not rtup:
             self._delStzPending(jid_unescape(room), frm)
             log.msg('Error in joined room. Room is none')
             return
         r, new_user = rtup
-
+        room = jid_escape(room)
+        
         members = r['roster']
 
-        jabberId, room, host, frm, nick, status, show, legacy = self._getPresenceInfo(prs)
-        room = jid_escape(room)
+
         description = None
 
         self._delStzPending(jid_unescape(room), frm)
