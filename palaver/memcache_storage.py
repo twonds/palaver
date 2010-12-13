@@ -44,7 +44,7 @@ class Storage:
         # connect to memcache servers
         self.mc_connections = {}
 
-        self.threadpool = deferedThreadPool(10, 10)
+        # self.threadpool = deferedThreadPool(10, 10)
 
         # need to start up thread pools
         self.running = False
@@ -57,8 +57,7 @@ class Storage:
         self.startID = None
  	
         if not self.running:
-            self.threadpool.start()
- 	    
+             	    
             self.shutdownID = reactor.addSystemEventTrigger('during',
                                                             'shutdown',
                                                             self._finalClose)
@@ -81,9 +80,6 @@ class Storage:
         
         self.startID = None
 	
-        if self.threadpool:
-            self.threadpool.stop()
- 	     	           
         # tear down memcache connections
         for mc in self.mc_connections.values():
             mc.disconnect_all()
@@ -302,11 +298,11 @@ class Storage:
 
             return room_dict
 
-        return self.threadpool.deferToThread(create)
+        return threads.deferToThread(create)
 
     
     def setRole(self, room, user, role, host=''):    
-        return self.threadpool.deferToThread(self._set_role, room, user, role, host=host)
+        return threads.deferToThread(self._set_role, room, user, role, host=host)
 
         
     def _set_role(self, room, user, role, host=''):
@@ -327,11 +323,11 @@ class Storage:
                 role = u['role']
                 return role
             
-        return self.threadpool.deferToThread(role)
+        return threads.deferToThread(role)
 
 
     def setAffiliation(self, room, user, affiliation, reason=None, host=''):
-        return self.threadpool.deferToThread(self._set_affiliation, room, user, affiliation, reason=reason, host=host)
+        return threads.deferToThread(self._set_affiliation, room, user, affiliation, reason=reason, host=host)
         
         
     def _set_affiliation(self, room, user, affiliation, reason=None, host=''):        
@@ -353,7 +349,7 @@ class Storage:
     
 
     def getAffiliation(self, room, user, host=''):
-        return self.threadpool.deferToThread(self._getAffiliation, room, user, host)
+        return threads.deferToThread(self._getAffiliation, room, user, host)
 
     
     def _getAffiliation(self, room, user, host = ''):
@@ -404,7 +400,7 @@ class Storage:
 
             return True
         
-        return self.threadpool.deferToThread(join)
+        return threads.deferToThread(join)
         
 
     def partRoom(self, room, user, nick, host=''):
@@ -424,7 +420,7 @@ class Storage:
                 self._deleteRoster(room, old_u['jid'], host)
                 return old_u
 
-        return self.threadpool.deferToThread(part, user, nick)
+        return threads.deferToThread(part, user, nick)
 
 
     def _get_room_members(self,  room, host=''):
@@ -441,7 +437,7 @@ class Storage:
         return members
         
     def getRoomMembers(self, room, host='', frm=None):
-        return self.threadpool.deferToThread(self._get_room_members, room, host)
+        return threads.deferToThread(self._get_room_members, room, host)
     
 
     def deleteRoom(self, room, owner = None, check_persistent = False, host=''):
@@ -456,7 +452,7 @@ class Storage:
                 self._deleteRoom(room, host)
             return True
 
-        return self.threadpool.deferToThread(delete)
+        return threads.deferToThread(delete)
 
 
     def setOwner(self, room, user, host = ''):
@@ -496,7 +492,7 @@ class Storage:
             else:
                 raise groupchat.RoomNotFound
 
-        return self.threadpool.deferToThread(nick)
+        return threads.deferToThread(nick)
 
     def getNicks(self, room, host =''):
         def get():
@@ -507,7 +503,7 @@ class Storage:
                     nicks.append(u['nick'])
             return nicks
 
-        return self.threadpool.deferToThread(get)
+        return threads.deferToThread(get)
     
     def _updateRoom(self, room, **kwargs):
         r = self._getRoomFromCache(room, kwargs['host'])        
@@ -525,11 +521,11 @@ class Storage:
             raise groupchat.RoomNotFound
  
     def updateRoom(self, room, **kwargs):
-        return self.threadpool.deferToThread(self._updateRoom, room, **kwargs)
+        return threads.deferToThread(self._updateRoom, room, **kwargs)
 
 
     def getRoom(self, room, host = '', frm = None):
-        return self.threadpool.deferToThread(self._getRoom, room, host)
+        return threads.deferToThread(self._getRoom, room, host)
 
 
     def _get_rooms(self, host = '', frm=None):
@@ -540,10 +536,10 @@ class Storage:
         return ret
 
     def getRooms(self, host = '', frm = None):
-        return self.threadpool.deferToThread(self._get_rooms, host=host, frm=frm)
+        return threads.deferToThread(self._get_rooms, host=host, frm=frm)
     
     def changeStatus(self, room, user, show = None, status = None, legacy=True, host = ''):
-        return self.threadpool.deferToThread(self._changeStatus, room, user, 
+        return threads.deferToThread(self._changeStatus, room, user, 
                                              show=show, 
                                              status=status, 
                                              legacy=legacy, 
