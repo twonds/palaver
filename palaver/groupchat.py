@@ -1,5 +1,5 @@
 """
- Copyright (c) 2005-2008 Christopher Zorn, OGG, LLC 
+ Copyright (c) 2005-2013 Christopher Zorn
  See LICENSE.txt for details
 """
 from twisted.words.protocols.jabber import jid
@@ -227,23 +227,23 @@ class IAdminService(Interface):
     def getAdmins(self, room, admin, host):
         """
         """
-    
+
     def getOutcasts(self, room, admin, host):
         """
         """
-    
+
     def getMembers(self, room, admin, host):
         """
         """
-    
+
     def getRoles(self, room, role, admin, host):
         """
         """
-    
+
     def updateRoom(self, room, owner, **kwargs):
         """
         """
-    
+
     def grantOwner(self, user, room, owner, host):
         """
         """
@@ -565,13 +565,13 @@ class RoomService(service.Service):
         return d
     
     def processGroupChat(self, room, frm, body, extra=[], host=None):
-        
+
         def process(r):
             if r is None:
                 raise RoomNotFound
             members = r['roster']
             if self.checkBanned(r, frm):
-                raise Forbidden                
+                raise Forbidden
             user = self.getMember(members, frm)
             if frm in self.sadmins:
                 if user:
@@ -589,7 +589,7 @@ class RoomService(service.Service):
                 log.msg(members)
                 log.msg('User is none, something is wrong')
                 raise NotAuthorized
-            
+
             if r['locked']:
                 raise RoomNotFound
 
@@ -600,11 +600,11 @@ class RoomService(service.Service):
                 raise Forbidden
             if user['role'] == 'none':
                 raise NotAuthorized
-            
+
 
             if r.has_key('message_size') and not int(r['message_size'])==0 and int(r['message_size']) < len(body.__str__()):
                 raise Unavailable
-    
+
             if not self.parent.HISTORY.has_key(room):
                 self.parent.HISTORY[room] = []
             hist = {}
@@ -615,24 +615,24 @@ class RoomService(service.Service):
             # CCYYMMDDThh:mm:ss
             #hist['stamp'] = datetime.datetime.now().strftime('%Y%m%dT%H:%m:%S')
             hist['stamp'] = datetime.datetime.utcnow()
-            
+
             if len(members)>0 and body != '' and body is not None:
                 self.appendHistory( room, r['history'], hist)
-            
+
             return r, user
         ep = None
         if getattr(self, 'plugins'):
             ep = self.plugins.get('groupchat')
         if ep:
             d = ep.message(frm, body)
-            d.addErrback(lambda x: self.error(NotAllowed, x)) 
+            d.addErrback(lambda x: self.error(NotAllowed, x))
             d.addCallback(lambda _: self.getRoom(room, host = host))
         else:
             d = self.getRoom(room, host = host)
         d.addCallback(process)
         return d
-        
-        
+
+
     def appendHistory(self, room, maxsize, hist):
         if len(self.parent.HISTORY[room])>int(maxsize):
             self.parent.HISTORY[room].pop(0)
@@ -668,22 +668,22 @@ class RoomService(service.Service):
             d = self.getRoom(room, host = host)
             d.addCallback(return_room_tup, u, frm, nick)
             return d
-                                
+
         d = self.parent.storage.partRoom(room, frm, nick, host)
         d.addCallback(ret)
         return d
-             
+
 
     def getMember(self, members, user, host=None):
         return self.parent.getMember(members, user)
 
     def checkBanned(self, room, user):
         return self.parent.checkBanned(room, user)
-    
+
     def joinRoom(self, room, frm, nick, status = None, show = None, legacy = True, host = None, do_check = True):
         """
         joinRoom
-        
+
         """
 
         def ret_room_user(r):
@@ -698,10 +698,10 @@ class RoomService(service.Service):
                 return self.getRoom(room, host = host).addCallback(ret_room_user)
             else:
                 raise RoomNotFound
-            
-            
+
+
         def join(check, u):
-            
+
             if check:
                 raise NickConflict
             else:
@@ -712,30 +712,29 @@ class RoomService(service.Service):
                                                  host   = host)
                 d.addCallback(ret_room)
                 return d
-            
+
         def ret(r):
             if not r:
                 raise Unavailable
-            
+
             if int(r['maxusers']) > 1 and int(r['maxusers'])<=len(r['roster']):
                 raise Unavailable
 
-            
+
             members = r['roster']
-            
+
             d = None
             user = self.getMember(members, frm)
-            
+
             if r['locked'] and user is None and do_check:
                 raise RoomNotFound
 
             if user is None:
                 if r.has_key('invitation') and r['invitation']:
                     # TODO - this needs to be a method
-                    found_member = False
                     if not self.checkMember(r, frm):
                         raise NotAuthorized
-                
+
                 if self.checkBanned(r, frm):
                     raise Forbidden
 
@@ -745,25 +744,25 @@ class RoomService(service.Service):
                 return d
             else:
                 log.msg('groupchat: Error here?')
-                
+
 
         def get_room(doGet):
             if not doGet:
                 raise NotMember
-            
+
             d = self.getRoom(room, host = host)
             # join room plugin
             d.addCallback(ret)
             return d
-        
+
         if self.plugins and self.plugins.has_key('join-room'):
             # d.addCallback(self.plugins['join-room'].join)
             d = self.plugins['join-room'].join(jid.internJID(frm).userhost(), room, host)
             d.addCallback(get_room)
-            
+
         else:
             d = get_room(True)
-            
+
         return d
 
 
@@ -795,17 +794,17 @@ class RoomService(service.Service):
                 if nick == n.lower():
                     return True
             return False
-        
+
         d = self.parent.storage.getNicks(room,host=host)
         d.addCallback(check, nick)
         return d
-    
+
     def changeNick(self, room, user, nick, host=None):
         def new_nick(ret):
             return self.getRoom(room['name'], host)
-        
+
         def check_nick(check):
-            
+
             if check:
                 raise NickConflict
             else:
@@ -885,7 +884,7 @@ class AdminService(service.Service):
         def get(r):
             if r and self.checkAdmin(r, admin):
                 return r
-            
+
             else:
                 raise NotAllowed
 
@@ -904,7 +903,6 @@ class AdminService(service.Service):
         d.addCallback(get)
         return d
 
-    
 
     def getRoomMembers(self, room, admin = None, host=None):
         def get(r):
@@ -960,7 +958,7 @@ class AdminService(service.Service):
                         knick = u['nick']
                         if self.checkSelf(user, admin):
                             raise NotAllowed
-                        
+
                         if self.checkAdmin(r, user):
                             raise NotAllowed
                         r['roster'][u['jid'].lower()]['role'] = 'none'
@@ -970,11 +968,11 @@ class AdminService(service.Service):
                     raise RoomNotFound
                 d = self.parent.storage.partRoom(room, kuser, knick, host=host)
                 d.addCallback(ret_kick, room, r['roster'])
-                d.addErrback(lambda x: self.error(NotAllowed, x)) 
+                d.addErrback(lambda x: self.error(NotAllowed, x))
                 return d
             else:
                 raise NotAllowed
-        
+
         d = self.parent.storage.getRoom(room,host=host)
         d.addCallback(set_kick,user)
         return d
@@ -992,17 +990,17 @@ class AdminService(service.Service):
 
         def ret_ban(rooms, room, old_r):
             return old_r
-        
+
         def set_ban(r, user):
             if not r:
                 raise RoomNotFound
-            
+
             if self.checkAdmin(r, admin):
-                
+
                 if self.checkSelf(user, admin):
                     # you can not ban yourself
                     raise NotAllowed
-                
+
                 if self.checkAdmin(r, user):
                     # you can not ban an admin
                     raise NotAllowed
@@ -1011,9 +1009,9 @@ class AdminService(service.Service):
                     # you can not ban some already banned
                     d =  defer.succeed(r)
                     d.addCallback(ret_ban, room, r['roster'])
-                    d.addErrback(lambda x:self.error(NotAllowed, x)) 
+                    d.addErrback(lambda x:self.error(NotAllowed, x))
                     return d
-                
+
                 user_check = jid.internJID(user).userhost().lower()
                 unick = 'none'
                 ban_user = None

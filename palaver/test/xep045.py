@@ -1,16 +1,13 @@
 # -*- coding: utf8 -*-
-# Copyright (c) 2005 - 2007  OGG, LLC 
+# Copyright (c) 2005 - 2013 Christopher Zorn
 # See LICENSE.txt for details
 import os
-import sys, sha
+import sha
 from twisted.trial import unittest
-import time
-from twisted.words.protocols.jabber import jid
-from twisted.internet import defer, protocol, reactor
-from twisted.application import internet, service
-from twisted.words.xish import domish, xpath
 
-from twisted.python import log
+from twisted.words.protocols.jabber import jid
+from twisted.internet import defer, reactor
+from twisted.words.xish import xpath
 
 try:
     from twisted.words.protocols.jabber.component import IService
@@ -19,9 +16,8 @@ except:
 
 from twisted.words.protocols.jabber import component, xmlstream
 
-from palaver import storage, groupchat, palaver, muc
-from palaver import pgsql_storage
-from palaver import dir_storage, memory_storage
+from palaver import groupchat, palaver, muc
+from palaver import dir_storage
 
 from palaver.test import  readlog
 
@@ -29,13 +25,13 @@ PASSWORD = 'palaveriscool'
 HOSTNAME = 'palaver.localhost'
 PORT     = 5437
 
-    
+
 class DummyTransport:
     def __init__(self, xmlparser):
         #self.list = list
-        
+
         self.xmlparser = xmlparser
- 	
+
     def write(self, bytes):
         # should we reset or use the stream?
         self.xmlparser.parse(bytes)
@@ -46,9 +42,6 @@ class DummyTransport:
 
 
 
-#import twisted
-#twisted.internet.base.DelayedCall.debug = True    
-
 class XEP045Tests(unittest.TestCase):
     """
     """
@@ -57,9 +50,9 @@ class XEP045Tests(unittest.TestCase):
         """
         Set up harness and palaver connection to the harness
         """
-        
+
         # PALAVER set up
-        
+
         # set up Jabber Component
         sm = component.buildServiceManager(HOSTNAME, PASSWORD,
                                            ("tcp:"+HOSTNAME+":"+str(PORT) ))
@@ -69,14 +62,14 @@ class XEP045Tests(unittest.TestCase):
         sadmins = ['server@serveradmin.com']
         # allow for other storage in tests
         st = dir_storage.Storage(spool='/tmp/palaver_test/')
-        st.sadmins = sadmins        
+        st.sadmins = sadmins
         self.groupchat_service = groupchat.GroupchatService(st)
-                    
+
         c = IService(self.groupchat_service)
-        c.setServiceParent(sm)        
+        c.setServiceParent(sm)
 
         self.room_service = groupchat.RoomService()
-                
+
         self.room_service.setServiceParent(self.groupchat_service)
         IService(self.room_service).setServiceParent(sm)
 
@@ -124,7 +117,7 @@ class XEP045Tests(unittest.TestCase):
             d.callback(True)
         else:
             reactor.callLater(0.25, self._waitForData, childNumber, d, timeout)
-            
+
 
     def _testCreate(self, test_elem, frm):
         self.assertEquals(xpath.matches("/presence[@from='"+frm+"']/x[@xmlns='http://jabber.org/protocol/muc#user']/item[@role='moderator']", test_elem), 1)
@@ -143,7 +136,7 @@ class XEP045Tests(unittest.TestCase):
     def _createRoom(self, frm, to):
         CLIENT_XML = """<presence from='%s' to='%s'/>""" % (frm, to, )        
         self.palaver_xs.dataReceived(CLIENT_XML)
-    
+
     def test1stCreateRoom(self):
         """ Test Create a Room .........................................................."""
         def _cbCreateRoom(t):
@@ -153,14 +146,47 @@ class XEP045Tests(unittest.TestCase):
             self.assertEquals(test_elem.name, 'presence')
             frm = 'darkcave@%s/thirdwitch' % HOSTNAME
             self._testCreate(test_elem, frm)
-            
+
             if len(self.wstream.entity.children)>1:
                 # Joining room instead of creating it
                 child_count = len(self.wstream.entity.children)
                 for i in range(1, child_count):
                     test_elem = self.wstream.entity.children.pop()
                     self.assertEquals(test_elem.name, 'presence')
-                
+
+        self._createRoom('hag66@shakespeare.lit/pda', 'darkcave@%s/thirdwitch' % (HOSTNAME, ))
+        return self.doWait(_cbCreateRoom, 2)
+
+    def testMucOwnerCreateRoom(self):
+        def testMucOwner(t):
+            test_elem = self.wstream.entity.children.pop()
+            self.assertEqual(test_elem.name, 'iq')
+            self.assertEqual(test_elem.getAttribute('type'), 'result')
+            self.assertEqual(test_elem.getAttribute('id'), '7')
+            self.assertEqual(3, len(test_elem.children))
+
+
+        def _cbCreateRoom(t):
+            self.assertEquals(t, True)
+            test_elem = self.wstream.entity.children.pop()
+            # Next element should be a presence broadcast
+            self.assertEquals(test_elem.name, 'presence')
+            frm = 'darkcave@%s/thirdwitch' % HOSTNAME
+            self._testCreate(test_elem, frm)
+
+            if len(self.wstream.entity.children)>1:
+                # Joining room instead of creating it
+                child_count = len(self.wstream.entity.children)
+                for i in range(1, child_count):
+                    test_elem = self.wstream.entity.children.pop()
+                    self.assertEquals(test_elem.name, 'presence')
+            self.palaver_xs.dataReceived("""
+<iq to="darkcave@%s" type="get" id="7" from="hag66@shakespeare.lit/pda">
+<query xmlns="http://jabber.org/protocol/muc#owner"/>
+</iq>
+""" % (HOSTNAME, ))
+            return self.doWait(testMucOwner, 2)
+
         self._createRoom('hag66@shakespeare.lit/pda', 'darkcave@%s/thirdwitch' % (HOSTNAME, ))
         return self.doWait(_cbCreateRoom, 2)
 
@@ -328,7 +354,7 @@ class XEP045Tests(unittest.TestCase):
 
         def _doDisco(t):
             while len(self.wstream.entity.children)>1:
-                test_elem = self.wstream.entity.children.pop()
+                self.wstream.entity.children.pop()
             CLIENT_XML = """
            <iq from='hag66@shakespeare.lit/pda' xmlns='jabber:client'
            id='disco1'
@@ -340,7 +366,7 @@ class XEP045Tests(unittest.TestCase):
 
 
             self.palaver_xs.dataReceived(CLIENT_XML)
-            
+
             return self.doWait(_cb62, 2)
 
         PRESENCE_XML = """
@@ -350,20 +376,20 @@ class XEP045Tests(unittest.TestCase):
     """ % (HOSTNAME, )
 
         self.palaver_xs.dataReceived(PRESENCE_XML)
-        
+
         return self.doWait(_doDisco, 2)
 
     def test63(self):
         """ Test Section 6.3 http://www.xmpp.org/extensions/xep-0045.html#disco-roominfo."""
         def _cb63(t):
             test_elem = self.wstream.entity.children.pop()
-            
+
             self.assertNotEquals(test_elem['type'],'error')
             # test for correct namespace
             self.assertEquals(test_elem.query.uri,'http://jabber.org/protocol/disco#info')
             # TODO - add more tests to this
             # palaver returns extended disco
-            
+
 
         CLIENT_XML = """
            <iq from='hag66@shakespeare.lit/pda' xmlns='jabber:client'
@@ -1507,7 +1533,7 @@ class XEP045Tests(unittest.TestCase):
 
         def _setRole(t):
             while len(self.wstream.entity.children)>1:
-                test_elem = self.wstream.entity.children.pop()
+                self.wstream.entity.children.pop()
             MEMBER_XML = """
             <iq from='kinghenryv@shakespeare.lit/throne'
     id='member1'
@@ -1645,7 +1671,7 @@ class XEP045Tests(unittest.TestCase):
     </destroy>
   </query>
 </iq>""" % (HOSTNAME, HOSTNAME)
-            
+
             self.palaver_xs.dataReceived(ADMIN_XML)
             return self.doWait(_cb109, 4)
 
@@ -1657,53 +1683,48 @@ class XEP045Tests(unittest.TestCase):
     """ % (HOSTNAME, )
 
         self.palaver_xs.dataReceived(PRESENCE_XML)
-        
+
         return self.doWait(_admin, 2)
 
     def testPresenceLeak(self):
         """ Test to make sure presence does not leak.                                   ."""
-        user_list = []
-        
+        user_list = set()
+
         def testLeave(t):
             while len(self.wstream.entity.children)>1:
                 test_elem = self.wstream.entity.children.pop()
                 self.assertEquals(test_elem['type'], 'unavailable')
                 self.failUnless(test_elem['to'].lower() in user_list)
-                
-                user_list.pop(user_list.index(test_elem['to'].lower()))
-            # Test for leak, if all users did not get unavailable then there is a leak
+                user_list.remove(test_elem['to'].lower())
 
+            # Test for leak, if all users did not get unavailable then there is a leak
             self.failUnless(len(user_list)==0, 'Not all users got unavailable presence')
-            
+
         def testJoin(t):
             send_one_to_users  = 0
-            send_one_to_member = 0
             send_two_to_users  = 0
-            send_two_to_member = 0
-            
+
             while len(self.wstream.entity.children)>1:
                 test_elem = self.wstream.entity.children.pop()
                 if test_elem.name =='presence' and test_elem['from'] == 'leak@%s/One' % (HOSTNAME,) \
                        and test_elem['to'] != '2@shakespeare.lit/testing':
                     send_one_to_users += 1
-                    
+
                 if test_elem.name =='presence' and test_elem['from'] == 'leak@%s/two' % (HOSTNAME,):
-                    send_two_to_users += 1                
-                    user_list.append(test_elem['to'].lower())
-            
+                    send_two_to_users += 1
+                    user_list.add(test_elem['to'].lower())
+
             self.failUnless(send_one_to_users >= 2, 'Not enough presence elements')
-            #self.assertEquals(send_one_to_users, 5)
-            
+
             self.failUnless(send_two_to_users >= 3, 'Not enough presence elements')
-            #self.assertEquals(send_two_to_users, 6)
-            
+
             PRESENCE_XML = """
             <presence from='one@shakespeare.lit/testing'  to='leak@%s/one' type='unavailable'/>
             """ % (HOSTNAME, )
 
             self.palaver_xs.dataReceived(PRESENCE_XML)
-        
-            return self.doWait(testLeave, 7)
+
+            return self.doWait(testLeave, 8)
 
         def testLeak(t):
             PRESENCE_XML = """
@@ -1712,12 +1733,12 @@ class XEP045Tests(unittest.TestCase):
     """ % (HOSTNAME, HOSTNAME)
 
             self.palaver_xs.dataReceived(PRESENCE_XML)
-        
+
             return self.doWait(testJoin, 16)
-        
+
         self._createRoom('hag66@shakespeare.lit/pda', 'leak@%s/thirdwitch' % (HOSTNAME, ))
         return self.doWait(testLeak, 3)
-    
+
 
     def testPresenceRaceCondition(self):
         """
@@ -1733,26 +1754,26 @@ class XEP045Tests(unittest.TestCase):
             self.failUnless(unavailable,'Did NOT leave the room')
             while len(self.wstream.entity.children)>1:
                 test_elem = self.wstream.entity.children.pop()
-                
-        def testRace(t):    
+
+        def testRace(t):
             PRESENCE_XML = """
     <presence from='race@shakespeare.lit/testing'  to='racetest@%s/RaceTest' />
     <presence from='race@shakespeare.lit/testing' type='unavailable' to='racetest@%s/RaceTest' />
     """ % (HOSTNAME, HOSTNAME)
 
             self.palaver_xs.dataReceived(PRESENCE_XML)
-            
+
             return self.doWait(testJoin, 18)
 
         self._createRoom('hag66@shakespeare.lit/pda', 'racetest@%s/thirdwitch' % (HOSTNAME, ))
         return self.doWait(testRace, 3)
 
-        
+
     def testZDisconnect(self):
         """ Test Disconnect ............................................................."""
         self.palaver_xs.connectionLost(None)
-        
-    
+
+
     def tearDown(self):
         pending = reactor.getDelayedCalls()
         if pending:
@@ -1764,9 +1785,9 @@ class XEP045Tests(unittest.TestCase):
         for root, dirs, files in os.walk('/tmp/palaver_test/'):
             for f in files:
                 os.unlink(root+f)
-            
+
         os.rmdir('/tmp/palaver_test/')
-    
+
 
     def testServerAdminJoiningPrivateRoom(self):
         """ Test Server Admin joining a private room .................."""
@@ -1774,11 +1795,11 @@ class XEP045Tests(unittest.TestCase):
         def test109(t):
             test_elem = self.wstream.entity.children.pop()
             self.failUnless(xpath.matches("/presence/x/item[@jid='hag66@shakespeare.lit/pda']", test_elem), 'Invalid room join.')
-            
+
 
         def testRoom(t):
             while len(self.wstream.entity.children)>1:
-                test_elem = self.wstream.entity.children.pop()
+                self.wstream.entity.children.pop()
             # join the room again and see if we get the status code
             CLIENT_XML = """<presence from='%s' to='%s'>
     <x xmlns='http://jabber.org/protocol/muc'/>

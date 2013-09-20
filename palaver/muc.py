@@ -1,14 +1,13 @@
 # -*- coding: utf8 -*-
 # MUC component service.
-# 
-# Copyright (c) 2005-2009 Christopher Zorn, OGG, LLC 
+#
+# Copyright (c) 2005-2013 Christopher Zorn
 # See LICENSE.txt for details
 
 from twisted.words.protocols.jabber import jid, xmlstream
-from twisted.application import internet, service
-from twisted.internet import interfaces, defer, reactor
-from twisted.python import usage, components, log
-from twisted.words.xish import domish, xpath
+from twisted.internet import defer
+from twisted.python import components, log
+from twisted.words.xish import domish
 
 try:
     from twisted.words.protocols.jabber.component import IService
@@ -16,7 +15,7 @@ except:
     from twisted.words.protocols.jabber.ijabber import IService
 from twisted.words.protocols.jabber import component
 
-from zope.interface import Interface, implements
+from zope.interface import implements
 
 import datetime
 
@@ -27,7 +26,6 @@ from xmpp import jid_escape, jid_unescape
 
 import types
 import groupchat
-from stanzaqueue import StanzaQueue
 
 def getCData(elem):
     for n in elem.children:
@@ -48,9 +46,8 @@ class StzCache:
     def __init__(self):
         self.stzs = {}
         self._id_counter = 0
-        
 
-    def getKey(self): 
+    def getKey(self):
         # create a key
         self._id_counter += 1
         return str(self._id_counter)
@@ -73,7 +70,6 @@ class StzCache:
     def serialize(self, key, val):
         if not self.stzs.has_key(key):
             return ''
-                
         try:
             ret_str = self.stzs[key].replace("'%s'", u"'%s'" % (val,), 1)
             return ret_str
@@ -91,7 +87,7 @@ class Service(component.Service):
         self.logger = logger
         self.error_list = []
         self.stz_cache = StzCache()
-        
+
     def error(self, failure, stanza):
         frm  = None
         room = None
@@ -103,8 +99,8 @@ class Service(component.Service):
 
         if '_delStzPending' in dir(self):
             self._delStzPending(jid_unescape(room), frm)
-        
-        try: 
+
+        try:
             e = failure.trap(Error, *error_map.keys())
         except:
             failure.printBriefTraceback()
@@ -113,7 +109,7 @@ class Service(component.Service):
                 msg = failure.value.msg
             except:
                 msg = ''
-                
+
             if stanza.name == 'iq':
                 error_from_iq(stanza, stanza_error, msg)
             if stanza.name == 'message':
@@ -122,7 +118,7 @@ class Service(component.Service):
                 error_from_presence(stanza, stanza_error, msg)
             return stanza
         else:
-                        
+
             if e == Error:
                 stanza_error = failure.value.stanza_error
                 muc_error    = failure.value.muc_error
@@ -144,7 +140,7 @@ class Service(component.Service):
                 log.msg(str(failure))
 
             return stanza
-    
+
     def success(self, result, iq):
         if not iq.hasAttribute("from"):
             log.err('Strange bug on success')
@@ -155,7 +151,7 @@ class Service(component.Service):
         q = getattr(iq, 'query', None)
         if q:
             q.children = []
-            
+
             if len(result)>0:
                 for child in result:
                     if isinstance(child, domish.Element):
@@ -297,10 +293,9 @@ class Service(component.Service):
 
             self.sendMessage(m['jid'], frm , body=body, subject=subject, typ=typ, children=children, stz_key = (stz_key, 'to', m['jid']))
         self.stz_cache.stop(stz_key)
-                
-                
+
     def bcastPresence(self, members, room, user, typ = None, px = None, show = None, status = None, attrs = None, private = True, status_code = None):
-        # TODO - this needs clean up        
+        # TODO - this needs clean up
         dlist = []
         
         mucx = domish.Element((NS_MUC, 'x'))
@@ -432,7 +427,7 @@ class Service(component.Service):
         called by the extended presence plugin deffered
         """
         children = children + pchildren
-        
+
         self.sendPresence(to,
                           frm,
                           typ = typ,
@@ -446,7 +441,7 @@ class ComponentServiceFromService(Service):
 
     def __init__(self, groupchat):
         Service.__init__(self, groupchat)
-        
+
     def get_disco_info(self, room = None, host = None, frm=None):
         info = []
 
@@ -667,7 +662,7 @@ class ComponentServiceFromRoomService(Service):
         self.xmlstream.send(riq)
         riq['to'] = toitem['jid']
         self.xmlstream.send(riq)
-        
+
     def onIq(self, iq):
         if getattr(iq,'handled',False):
             return
@@ -681,7 +676,7 @@ class ComponentServiceFromRoomService(Service):
 
         if query and query.uri and (query.uri == DISCO_NS_INFO or query.uri == DISCO_NS_ITEMS):
             return
-        
+
         try:
             room = jid_unescape(jid.internJID(iq['to']).user)
             host = jid.internJID(iq['to']).host
@@ -692,7 +687,7 @@ class ComponentServiceFromRoomService(Service):
             raise groupchat.RoomNotFound
         if not nick:
             return
-        
+
         if room == host:
             return
         def process_iq(r):
@@ -700,7 +695,7 @@ class ComponentServiceFromRoomService(Service):
                 raise groupchat.RoomNotFound
             if iq['type'] == 'result':
                 return
-            
+
             if r.has_key('privacy') and not r['privacy']:
                 raise groupchat.NotAllowed
             # else we pass on the iq to the jid
@@ -1017,16 +1012,16 @@ class ComponentServiceFromRoomService(Service):
 
         if new_user is None:
             raise groupchat.BadRequest
-        
+
         # send presence to user
-        x = domish.Element((NS_MUC_USER,'x'))                
+        x = domish.Element((NS_MUC_USER,'x'))
         item = x.addElement('item')
-                
+
         item['jid']  = new_user['jid']
         item['nick'] = new_user['nick']
         item['role'] = new_user['role'].lower()
         item['affiliation'] = new_user['affiliation']
-            
+
         s = x.addElement('status')
         s['code'] = '201'
 
@@ -1034,7 +1029,7 @@ class ComponentServiceFromRoomService(Service):
             ep = self.groupchat.plugins['extended-presence']
             d = ep.member_info(new_user)
             d.addCallback(self.extendedPresence, new_user['jid'], room+'@'+self.jid+'/'+new_user['nick'],children=[x])
-        else:    
+        else:
             self.sendPresence(new_user['jid'],room+'@'+self.jid+'/'+new_user['nick'], children=[x])
         if description:
             self.sendMessage(new_user['jid'],
@@ -1727,7 +1722,7 @@ class ComponentServiceFromAdminService(Service):
             return
         # TODO - move a way to unlock the rooms without an admin service
         typ  = iq.getAttribute('type')
-        
+
         if typ == 'error':
             return
 
@@ -1735,7 +1730,7 @@ class ComponentServiceFromAdminService(Service):
         frm  = iq.getAttribute('from')
         item = getattr(iq.query,'item',None)
         x    = getattr(iq.query,'x',None)
-        
+
         if self._doDelay(room, frm, iq):
             return
 
@@ -1763,9 +1758,8 @@ class ComponentServiceFromAdminService(Service):
     def destroyRoom(self, iq):
         room = jid_unescape(jid.internJID(iq['to']).user)
         user = iq['from']
-        
+
         def ret_destroy(did_it, droom):
-            
             if did_it:
                 if not droom:
                     raise groupchat.RoomNotFound
@@ -1774,7 +1768,7 @@ class ComponentServiceFromAdminService(Service):
                 destroy_presence = ""
                 for mem in droom['roster'].values():
                     if len(destroy_presence)>0:
-                        self.xmlstream.send(destroy_presence % (jid.internJID(mem['jid']).full(), 
+                        self.xmlstream.send(destroy_presence % (jid.internJID(mem['jid']).full(),
                                                                 room+'@'+self.jid+'/'+mem['nick']
                                                                 ))
                         continue
@@ -1809,42 +1803,42 @@ class ComponentServiceFromAdminService(Service):
 
     def _get_config(self, room, name, user):
         # TODO - do we need to lock room config?
-    
+
         # build config
-        
+
         fields = []
         fields.append({'var': 'FORM_TYPE',
                        'type' :'hidden',
                        'value': NS_MUC_CONFIG})
-        fields.append({'var': 'muc#roomconfig_roomname', 
+        fields.append({'var': 'muc#roomconfig_roomname',
                        'type' : 'text-single',
                        'label' : 'Natural language room name.',
                        'value': room['roomname']
                        }
                       )
-        
-        fields.append({'var': 'muc#roomconfig_roomdesc', 
+
+        fields.append({'var': 'muc#roomconfig_roomdesc',
                        'type' : 'text-multi',
                        'label' : 'Short description of room.',
                        'value': room['description']
                        })
-        
+
         if room.has_key('enablelogging'):
             if room['enablelogging']:
                 elv = '1'
             else:
                 elv = '0'
-            fields.append({'var': 'muc#roomconfig_enablelogging', 
+            fields.append({'var': 'muc#roomconfig_enablelogging',
                            'type' : 'boolean',
                            'label' : 'Enable logging?',
                            'value': elv
                            })
-            
+
         if room['subject_change']:
             elv = '1'
         else:
             elv = '0'
-        fields.append({'var': 'muc#roomconfig_subjectchange', 
+        fields.append({'var': 'muc#roomconfig_subjectchange',
                        'type' : 'boolean',
                        'label' : 'Allow users to change subject?',
                        'value': elv
@@ -1854,7 +1848,7 @@ class ComponentServiceFromAdminService(Service):
             elv = '1'
         else:
             elv = '0'
-        fields.append({'var': 'privacy', 
+        fields.append({'var': 'privacy',
                        'type' : 'boolean',
                        'label' : 'Allow users to query others?',
                        'value': elv
@@ -1864,27 +1858,27 @@ class ComponentServiceFromAdminService(Service):
             elv = '1'
         else:
             elv = '0'
-        fields.append({'var': 'muc#roomconfig_inviteonly', 
+        fields.append({'var': 'muc#roomconfig_inviteonly',
                        'type' : 'boolean',
                        'label' : 'An invitation is required to enter?',
                        'value': elv
                        })
-        
+
         if room.has_key('privmsg') and room['privmsg']:
             elv = '1'
         else:
             elv = '0'
-        fields.append({'var': 'privmsg', 
+        fields.append({'var': 'privmsg',
                        'type' : 'boolean',
                        'label' : 'Allow users to send private chats?',
                        'value': elv
                        })
-        
+
         if room.has_key('invites') and room['invites']:
             elv = '1'
         else:
             elv = '0'
-        fields.append({'var': 'muc#roomconfig_allowinvites', 
+        fields.append({'var': 'muc#roomconfig_allowinvites',
                        'type' : 'boolean',
                        'label' : 'Allow users to invite others?',
                        'value': elv
@@ -1895,7 +1889,7 @@ class ComponentServiceFromAdminService(Service):
             elv = 'admins'
         else:
             elv = 'anyone'
-        fields.append({'var': 'muc#roomconfig_whois', 
+        fields.append({'var': 'muc#roomconfig_whois',
                        'type' : 'list-single',
                        'label' : 'Afilliations that may discover REAL JIDs of room occupants.',
                        'value': elv,
@@ -1904,24 +1898,24 @@ class ComponentServiceFromAdminService(Service):
                                     {'label': 'Anyone',
                                      'value' : 'anyone'},
                                     ]
-                       })        
+                       })
         fields.append({
             'type' : 'fixed',
             'value': 'The following messages are sent to legacy clients.'
         })
-        fields.append({'var': 'leave', 
+        fields.append({'var': 'leave',
                        'type' : 'text-single',
                        'label' : 'Message for user leaving room.',
                        'value': room['leave']
                        })
-        fields.append({'var': 'join', 
-                       'type' : 'text-single', 
+        fields.append({'var': 'join',
+                       'type' : 'text-single',
                        'label': 'Message for user joining room.',
                        'value': room['join']
                        })
 
-        fields.append({'var': 'rename', 
-                       'type' : 'text-single', 
+        fields.append({'var': 'rename',
+                       'type' : 'text-single',
                        'label': 'Message for user changing nick.',
                        'value' : room['rename']
                        })
@@ -1931,14 +1925,14 @@ class ComponentServiceFromAdminService(Service):
         else:
             msg_size = 0
 
-        fields.append({'var': 'message_size', 
-                       'type' : 'text-single', 
+        fields.append({'var': 'message_size',
+                       'type' : 'text-single',
                        'label': 'Maximum length of messages to chat rooms. 0 for unlimited.',
                        'value' : str(msg_size)
-                       })        
-        
-        fields.append({'var': 'muc#roomconfig_maxusers', 
-                       'type' : 'list-single', 
+                       })
+
+        fields.append({'var': 'muc#roomconfig_maxusers',
+                       'type' : 'list-single',
                        'label': 'Maximum users for this room.',
                        'value' : str(room['maxusers']),
                        'options' : [{'label': '1',
@@ -1958,8 +1952,8 @@ class ComponentServiceFromAdminService(Service):
                                     ]
                        })
 
-        fields.append({'var': 'history', 
-                       'type' : 'list-single', 
+        fields.append({'var': 'history',
+                       'type' : 'list-single',
                        'label': 'History backlog length.',
                        'value' : str(room['history']),
                        'options' : [{'label': '1',
@@ -1974,72 +1968,68 @@ class ComponentServiceFromAdminService(Service):
                                      'value' : '40'},
                                     {'label': '50',
                                      'value' : '50'},
-                                    
                                     ]
                        })
-        
+
         if room['hidden']:
             elv = '0'
         else:
             elv = '1'
-        fields.append({'var': 'muc#roomconfig_publicroom', 
+        fields.append({'var': 'muc#roomconfig_publicroom',
                        'type' : 'boolean',
                        'label' : 'Turn on public searching of room? Make it public.',
                        'value': elv
                        })
-        
+
         if room['moderated']:
             elv = '1'
         else:
             elv = '0'
-        fields.append({'var': 'muc#roomconfig_moderated', 
+        fields.append({'var': 'muc#roomconfig_moderated',
                        'type' : 'boolean',
                        'label' : 'Make room moderated.',
                        'value': elv
                        })
-        
+
         if room['persistent']:
             elv = '1'
         else:
             elv = '0'
-        fields.append({'var': 'muc#roomconfig_persistent', 
+        fields.append({'var': 'muc#roomconfig_persistent',
                        'type' : 'boolean',
                        'label' : 'Make room persistent.',
                        'value': elv
                        })
-        
-        
+
+
         elv = str(room.get('logroom', 0))
-        fields.append({'var': 'logroom', 
+        fields.append({'var': 'logroom',
                        'type' : 'boolean',
                        'label' : 'Have server log the room.',
                        'value': elv
                        })
 
         elv = str(room.get('ignore_player', 0))
-        fields.append({'var': 'ignore_player', 
+        fields.append({'var': 'ignore_player',
                        'type' : 'boolean',
                        'label' : 'Ignore player checks for games.',
                        'value': elv
                        })
-        
-        
+
         x = X(typ='form',
               title='Configuration for "'+name+'" Room',
               instructions='Complete this form to configure this chat room.',
               fields=fields)
-        
+
         return [x]
 
     def getConfig(self, iq):
-        typ = iq.getAttribute('type')
-        
         room = jid_unescape(jid.internJID(iq['to']).user)
         d = self.groupchat.getRoomConfig(room, iq['from'], host=self.jid)
         d.addCallback(self._get_config, room, iq['from'])
         return d
 
-    
+
     def _set_config(self, room, x, name, user):
         if room is None:
             raise groupchat.RoomNotFound
@@ -2050,10 +2040,9 @@ class ComponentServiceFromAdminService(Service):
         kwargs['host'] = self.jid
         if room['locked']:
             kwargs['locked'] = False
-            
+
         for f in x.elements():
             if f.name == 'field' and f.hasAttribute('var'):
-                
                 if f['var'] == 'muc#roomconfig_subject':
                     kwargs['subject'] = getCData(f.value)
                 elif f['var'] == 'muc#roomconfig_subjectchange':
