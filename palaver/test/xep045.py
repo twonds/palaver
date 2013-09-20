@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 # Copyright (c) 2005 - 2013 Christopher Zorn
 # See LICENSE.txt for details
 import os
@@ -78,23 +78,21 @@ class XEP045Tests(unittest.TestCase):
 
         self.admin_service.setServiceParent(self.groupchat_service)
         IService(self.admin_service).setServiceParent(sm)
-        
 
         self.palaver_service = palaver.PalaverService()
         self.palaver_service.setServiceParent(sm)
-        
+
         self.palaver_factory = sm.getFactory()
         # set up xmlstream for palaver
 
         self.wstream = readlog.XmlParser()
-        
+
         self.palaver_xs = self.palaver_factory.buildProtocol(None)
         self.palaver_xs.transport = DummyTransport(self.wstream)
-        
 
-        # Indicate that palaver is connected 
+        # Indicate that palaver is connected
         self.palaver_xs.connectionMade()
-        
+
         self.palaver_xs.dataReceived("<stream:stream xmlns='jabber:component:accept' xmlns:stream='http://etherx.jabber.org/streams' from='localhost' id='12345'>")
 
 
@@ -121,11 +119,10 @@ class XEP045Tests(unittest.TestCase):
 
     def _testCreate(self, test_elem, frm):
         self.assertEquals(xpath.matches("/presence[@from='"+frm+"']/x[@xmlns='http://jabber.org/protocol/muc#user']/item[@role='moderator']", test_elem), 1)
-        
 
     def _clearElems(self):
         while len(self.wstream.entity.children)>1:
-            test_elem = self.wstream.entity.children.pop()
+            self.wstream.entity.children.pop()
 
     def doWait(self, cb, num, timeout=5):
         d = defer.Deferred()
@@ -134,7 +131,7 @@ class XEP045Tests(unittest.TestCase):
         return d
 
     def _createRoom(self, frm, to):
-        CLIENT_XML = """<presence from='%s' to='%s'/>""" % (frm, to, )        
+        CLIENT_XML = """<presence from='%s' to='%s'/>""" % (frm, to, )
         self.palaver_xs.dataReceived(CLIENT_XML)
 
     def test1stCreateRoom(self):
@@ -1449,8 +1446,7 @@ class XEP045Tests(unittest.TestCase):
 
         def _do_first_ban(t):
             # pop off presence
-            while len(self.wstream.entity.children)>1:
-                test_elem = self.wstream.entity.children.pop()
+            self._clearElems()
             BAN_XML = """<iq from='kinghenryv@shakespeare.lit/throne'
     id='ban1'
     to='southhampton@%s'
@@ -1464,12 +1460,12 @@ class XEP045Tests(unittest.TestCase):
 </iq>""" % (HOSTNAME,)
 
             self.palaver_xs.dataReceived(BAN_XML)
-        
-            return self.doWait(_first_ban_result, 4) 
-            
+
+            return self.doWait(_first_ban_result, 4)
 
 
-        
+
+
         PRESENCE_XML = """
     <presence
     from='kinghenryv@shakespeare.lit/throne'
@@ -1516,10 +1512,10 @@ class XEP045Tests(unittest.TestCase):
     """ % (HOSTNAME, )
 
         self.palaver_xs.dataReceived(PRESENCE_XML)
-        
+
         return self.doWait(_create, 2)
 
-    
+
     def test96(self):
         """ Test section 9.6 http://www.xmpp.org/extensions/xep-0045.html#grantmod ..........."""
 
@@ -1529,7 +1525,7 @@ class XEP045Tests(unittest.TestCase):
             while len(self.wstream.entity.children)>1:
                 test_elem = self.wstream.entity.children.pop()
                 self.failUnless(xpath.matches("/presence[@from='modtest@%s/witch']/x/item[@role='moderator']" % (HOSTNAME,), test_elem), 'Error in presence.')
-                
+
 
         def _setRole(t):
             while len(self.wstream.entity.children)>1:
@@ -1698,7 +1694,7 @@ class XEP045Tests(unittest.TestCase):
                 user_list.remove(test_elem['to'].lower())
 
             # Test for leak, if all users did not get unavailable then there is a leak
-            self.failUnless(len(user_list)==0, 'Not all users got unavailable presence')
+            self.assertEqual(0, len(user_list))
 
         def testJoin(t):
             send_one_to_users  = 0
@@ -1724,7 +1720,7 @@ class XEP045Tests(unittest.TestCase):
 
             self.palaver_xs.dataReceived(PRESENCE_XML)
 
-            return self.doWait(testLeave, 8)
+            return self.doWait(testLeave, 7)
 
         def testLeak(t):
             PRESENCE_XML = """
@@ -1775,6 +1771,9 @@ class XEP045Tests(unittest.TestCase):
 
 
     def tearDown(self):
+        self.wstream = None
+        self.room_service = None
+        self.admin_service = None
         pending = reactor.getDelayedCalls()
         if pending:
             for p in pending:
@@ -1803,10 +1802,10 @@ class XEP045Tests(unittest.TestCase):
             # join the room again and see if we get the status code
             CLIENT_XML = """<presence from='%s' to='%s'>
     <x xmlns='http://jabber.org/protocol/muc'/>
- </presence>""" % ('hag66@shakespeare.lit/pda', 'hidden@%s/thirdwitch' % (HOSTNAME, ))        
+ </presence>""" % ('hag66@shakespeare.lit/pda', 'hidden@%s/thirdwitch' % (HOSTNAME, ))
             self.palaver_xs.dataReceived(CLIENT_XML)
             return self.doWait(test109, 2)
-    
+
         def joinRoom(t):
             test_elem = self.wstream.entity.children.pop()
             self.failUnless(xpath.matches("/iq[@type='result']", test_elem), 'Invalid iq result.')

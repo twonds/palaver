@@ -122,20 +122,20 @@ class IRoomService(Interface):
     def createRoom(self, room, frm, nick, status = None, show=None, host=None):
         """
         """
-        
-    
+
+
     def deleteNonPersistentRoom(self, room, host):
         """
         """
 
     def processGroupChat(self, room, frm, body, host):
-        """        
+        """
         """
 
     def partRoom(self, room, frm, nick, host):
         """
         """
-        
+
     def getMember(self, members, user, host):
         """
         """
@@ -143,9 +143,9 @@ class IRoomService(Interface):
     def joinRoom(self, room, frm, nick, status = None, show=None, legacy=True, host=None):
         """
         joinRoom
-        
+
         """
-        
+
 
     def invite(self, room, to, frm, host):
         """
@@ -154,7 +154,7 @@ class IRoomService(Interface):
     def checkNick(self, room, nick, host):
         """
         """
-    
+
     def changeNick(self, room, user, nick, host):
         """
         """
@@ -514,17 +514,17 @@ class RoomService(service.Service):
                 self.parent.HISTORY[r['name'].lower()] = []
                 if self.parent.use_cache:
                     self.getRoom(r['name'], host)
-                    
+
     def getRoom(self, room, host=None):
         return self.parent.getRoom(room, host = host)
 
     def getRoomMembers(self, room, host=None):
         return self.parent.getRoomMembers(room, host = host)
-        
+
 
     def getHistory(self, room, host=None):
         return self.parent.getHistory(room, host = host)
-        
+
     def createRoom(self, room, frm, nick, status = None, show = None, legacy = True, host=None):
         """
         Create and join the room
@@ -542,7 +542,7 @@ class RoomService(service.Service):
         def create_room(doCreate, error_code=NotAllowed):
             if not doCreate:
                 raise error_code
-            
+
             d = self.parent.storage.createRoom(room, jid.internJID(frm).userhost(), legacy=legacy, host=host)
             d.addCallback(created)
             return d
@@ -646,7 +646,7 @@ class RoomService(service.Service):
                 raise RoomNotFound
             else:
                 members = r['roster']
-            
+
             if not r['persistent'] and len(members)==0:
                 # delete the room if not persistent
                 self.deleteNonPersistentRoom(room, host)
@@ -654,14 +654,16 @@ class RoomService(service.Service):
                 if r['locked']:
                     raise RoomNotFound
 
-                for usr in r['roster'].values():
+                for usr in members.values():
                     try:
-                        if usr['jid'].lower() == frm or usr['nick'].lower() == nick:
-                            r['roster'][usr['jid'].lower()]['role'] = 'none'
+                        key = usr['jid'].lower()
+                        if key == frm or usr['nick'].lower() == nick:
+                            if r['roster'].has_key(key):
+                                r['roster'][key]['role'] = 'none'
                             break
                     except:
                         log.err()
-            
+
             return (r, u)
 
         def ret(u):
@@ -685,7 +687,6 @@ class RoomService(service.Service):
         joinRoom
 
         """
-
         def ret_room_user(r):
             u = r['roster'].get(frm)
             if not u:
@@ -811,7 +812,7 @@ class RoomService(service.Service):
                 d = self.parent.storage.changeNick(room['name'], user['jid'], nick,host=host)
                 d.addCallback(new_nick)
                 return d
-            
+
         # check if we can change nick
         if room['change_nick']:
             d = self.checkNick(room['name'], nick, host)
@@ -821,14 +822,12 @@ class RoomService(service.Service):
             raise NotAuthorized
 
     def error(self, error, emsg=None):
-        
         raise error
 
     def changeSubject(self, room, frm, subject, host=None):
-        
         def success(row, r, user):
             return r, user
-        
+
         def change(r):
             members = r['roster']
             user = self.getMember(members, frm, host = host)
@@ -837,17 +836,16 @@ class RoomService(service.Service):
                 # grab members
                 if user['role'] != 'moderator':
                     allow_update = False
-                
+
             if allow_update or user['role'] == 'moderator':
                 d = self.parent.storage.updateRoom(room, subject = subject, host=host)
                 d.addCallback(success, r, user)
-                d.addErrback(lambda x : self.error(RoomNotFound)) 
+                d.addErrback(lambda x : self.error(RoomNotFound))
                 return d
             else:
                 raise NotAllowed
-        # TODO - raise an error            
-        
-        
+        # TODO - raise an error
+
         # grab room
         d = self.getRoom(room, host = host)
         d.addCallback(change)
@@ -865,7 +863,7 @@ class RoomService(service.Service):
         d = self.parent.storage.changeStatus(room, user, show, status, legacy, host = host)
         d.addCallback(success)
 
-        d.addErrback(lambda x : self.error(NotMember)) 
+        d.addErrback(lambda x : self.error(NotMember))
         return d
 
 

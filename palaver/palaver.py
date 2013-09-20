@@ -1,17 +1,17 @@
-# -*- coding: utf8 -*-
-# Copyright (c) 2005-2008 Christopher Zorn, OGG, LLC 
+# -*- coding: utf-8 -*-
+# Copyright (c) 2005-2013 Christopher Zorn
 # See LICENSE.txt for details
 """
 Main service class for multi-user chat.
 
 """
 import time
-from twisted.words.protocols.jabber import jid, client, xmlstream
+from twisted.words.protocols.jabber import jid
 from twisted.words.protocols.jabber.xmlstream import IQ as xsIQ
-from twisted.application import internet, service
-from twisted.internet import interfaces, defer
-from twisted.python import usage, log, reflect
-from twisted.words.xish import domish, xpath
+
+from twisted.internet import defer
+from twisted.python import log, reflect
+from twisted.words.xish import domish
 
 try:
     from twisted.words.protocols.jabber.component import IService
@@ -19,18 +19,14 @@ except:
     from twisted.words.protocols.jabber.ijabber import IService
 from twisted.words.protocols.jabber import component
 
-from zope.interface import Interface, implements
 
-import traceback
-
-from xmpp import jid_escape, jid_unescape
+from xmpp import jid_unescape
 
 __version__ = '0.6'
 
 from xmpp.ns import *
 from xmpp import disco
 from xmpp import error
-import muc
 
 
 class PalaverService(component.Service):
@@ -58,14 +54,13 @@ class PalaverService(component.Service):
     def onVersion(self, iq):
         iq.swapAttributeValues("to", "from")
         iq["type"] = "result"
-        name = iq.addElement("name", None, 'Palaver')
-        version = iq.addElement("version", None, __version__)
+        iq.addElement("name", None, 'Palaver')
+        iq.addElement("version", None, __version__)
         self.send(iq)
         iq.handled = True
 
     def onDiscoInfo(self, iq):
         dl = []
-        node = iq.query.getAttribute("node")
         try:
             room = jid_unescape(jid.internJID(iq['to']).user)
         except:
@@ -81,10 +76,7 @@ class PalaverService(component.Service):
         d.addErrback(self._error, iq)
         d.addCallback(self.send)
 
-        
-
     def _disco_info_results(self, results, iq, room = None):
-        
         info = []
         for i in results:
             info.extend(i[1])
@@ -96,16 +88,15 @@ class PalaverService(component.Service):
         riq['to']   = iq['from']
         riq['from'] = iq['to']
         riq.addElement('query', DISCO_NS_INFO)
-                
+
         if room and not info:
             return error.error_from_iq(iq, 'item-not-found')
         else:
             for item in info:
                 item.parent = riq.query
-                
+
                 riq.query.addChild(item)
-        
-        
+
         iq.handled = True
         return riq
 
@@ -114,8 +105,7 @@ class PalaverService(component.Service):
         if not args:
             result.value[0].printBriefTraceback()
         return error.error_from_iq(iq, 'internal-server-error')
-        
-            
+
     def onDiscoItems(self, iq):
         dl = []
         node = iq.query.getAttribute("node")
@@ -126,7 +116,7 @@ class PalaverService(component.Service):
 
         host = jid.internJID(iq['to']).host
         nick = jid.internJID(iq['to']).resource
-        
+
         for c in self.parent:
             if IService.providedBy(c):
                 if hasattr(c, "get_disco_items"):
@@ -139,12 +129,12 @@ class PalaverService(component.Service):
 
 
     def _disco_items_result(self, results, iq, room = None, node = None):
-        # a better fix to the twisted bug is just create a new iq 
+        # a better fix to the twisted bug is just create a new iq
         riq = xsIQ(self.xmlstream, "result")
         riq['id']   = iq['id']
         riq['to']   = iq['from']
         riq['from'] = iq['to']
-        riq.addElement('query', DISCO_NS_ITEMS)    
+        riq.addElement('query', DISCO_NS_ITEMS)
         if node:
             riq.query['node'] = node
         items = []
@@ -155,9 +145,9 @@ class PalaverService(component.Service):
                     riq.addChild(i[1][0])
                     continue
             items.extend(i[1])
-                
+
         riq.query.children = items
-        
+
         iq.handled = True
         return riq
 

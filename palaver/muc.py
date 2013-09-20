@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 # MUC component service.
 #
 # Copyright (c) 2005-2013 Christopher Zorn
@@ -118,7 +118,6 @@ class Service(component.Service):
                 error_from_presence(stanza, stanza_error, msg)
             return stanza
         else:
-
             if e == Error:
                 stanza_error = failure.value.stanza_error
                 muc_error    = failure.value.muc_error
@@ -182,7 +181,7 @@ class Service(component.Service):
             if len(message)>0:
                 self.xmlstream.send(message)
                 return
-        
+
         message = domish.Element((NS_CLIENT,'message'))
         message['from'] = frm
         message['to']   = to
@@ -254,9 +253,8 @@ class Service(component.Service):
         if raw_xml:
             child_str = child_str + raw_xml
 
-        
         self.xmlstream.send(PRESENCE % (attr_str, child_str, ))
-        
+
 
 
     def bcastMessage(self, room_obj, user, body=None, subject = None, typ = 'groupchat', frm = None, children = None, legacy = False):
@@ -267,10 +265,10 @@ class Service(component.Service):
             children = []
         members = room_obj['roster']
         room = room_obj['name']
-        
+
         if frm is None:
             frm = jid_escape(room)+'@'+self.jid+'/'+user['nick']
-            
+
         game_message_type = ''
         # start a stanza broadcast cache
         stz_key = self.stz_cache.getKey()
@@ -297,16 +295,16 @@ class Service(component.Service):
     def bcastPresence(self, members, room, user, typ = None, px = None, show = None, status = None, attrs = None, private = True, status_code = None):
         # TODO - this needs clean up
         dlist = []
-        
+
         mucx = domish.Element((NS_MUC, 'x'))
-        
+
         for m in members.values():
             if m['role'] == 'none' and not status_code:
                 continue
             # x = """ """
-            x = domish.Element((NS_MUC_USER, 'x'))                
+            x = domish.Element((NS_MUC_USER, 'x'))
             item = x.addElement('item')
-            
+
             if m['role']=='moderator'\
                     and private:
                 item['jid'] = user['jid']
@@ -318,10 +316,10 @@ class Service(component.Service):
             if user['role'] == 'none':
                 typ = 'unavailable'
 
-            
+
             if user['affiliation'] != None:
                 item['affiliation'] = user['affiliation']
-            
+
             if status_code:
                 s = x.addElement('status')
                 s['code'] = str(status_code)
@@ -331,8 +329,7 @@ class Service(component.Service):
                 if user['xtra'].has_key('actor'):
                     a = item.addElement('actor')
                     a['jid'] = str(user['xtra']['actor'])
-                                            
-            
+
             pchildren = [mucx, x]
             if px:
                 pchildren = pchildren + px
@@ -349,7 +346,7 @@ class Service(component.Service):
                               attrs = attrs,
                               )
                 dlist.append(d)
-            else:    
+            else:
                 self.sendPresence(m['jid'],
                                   room+'@'+self.jid+'/'+user['nick'],
                                   typ = typ,
@@ -359,7 +356,7 @@ class Service(component.Service):
                                   attrs = attrs,
                                )
                 dlist.append(defer.succeed(True))
-        
+
         dl = defer.DeferredList(dlist)
         return dl
 
@@ -367,30 +364,30 @@ class Service(component.Service):
         dlist = []
 
         mucx = domish.Element((NS_MUC, 'x'))
-        
+
         for m in members.values():
 
             if user['jid'].lower() == m['jid'].lower():
                 continue
             if m['role'] == 'none':
                 continue
-            x = domish.Element((NS_MUC_USER,'x'))                
+            x = domish.Element((NS_MUC_USER,'x'))
             item = x.addElement('item')
-                
+
             if user['role']=='moderator'\
                and private:
                 item['jid'] = m['jid']
             elif not private:
                 item['jid'] = m['jid']
             item['role'] = unicode(m['role']).lower()
-                
+
             if m['affiliation'] is not None:
                 item['affiliation'] = unicode(m['affiliation'])
 
             mstatus = m.get('status')
-                
+
             mshow = m.get('show')
-            
+
             # TODO - need a cache for this, the attribute to change needs to be easier to use.
 
             # TODO - check if member is not legacy
@@ -398,8 +395,8 @@ class Service(component.Service):
             pchildren = [mucx, x]
 
             # TODO - plugins for other things
-            
-            if getattr(self.groupchat,'plugins',None) and self.groupchat.plugins.has_key('extended-presence'):
+            if getattr(self.groupchat,'plugins',None) and \
+                    self.groupchat.plugins.has_key('extended-presence'):
                 ep = self.groupchat.plugins['extended-presence']
                 d = ep.member_info(m)
                 d.addCallback(self.extendedPresence,
@@ -411,7 +408,6 @@ class Service(component.Service):
                  )
                 dlist.append(d)
             else:
-                
                 self.sendPresence(user['jid'],
                                   room+'@'+self.jid+'/'+m['nick'],
                                   children = pchildren,
@@ -419,9 +415,9 @@ class Service(component.Service):
                                   status = mstatus,
                  )
                 dlist.append(defer.succeed(True))
-        
+
         return defer.DeferredList(dlist)
-            
+
     def extendedPresence(self, pchildren, to, frm, typ = None, status = None, show= None, children = None, attrs=None, stz_key = None):
         """
         called by the extended presence plugin deffered
@@ -467,19 +463,17 @@ class ComponentServiceFromService(Service):
             d.addCallback(self._add_room, [], room, frm=frm, host=host)
             d.addErrback(trap_not_found)
             return d
-            
 
     def _add_room(self, room, result_list, name, frm = None, host = None):
         if room is None:
             return result_list
-        
-        
+
         if room.has_key('hidden') and room['hidden']:
             # check if user is a member, admin, owner etc
             if not self.groupchat.checkMember(room, frm):
                 return result_list
-        
-        
+
+
         members = room['roster']
         count = 0
         for mem in members.values():
@@ -737,7 +731,7 @@ class ComponentServiceFromRoomService(Service):
         Add the presence stanza to the queue and grab the room.
 
         """
-        
+
         if prs.hasAttribute('type') and prs['type'] == 'error':
             log.msg('\n\npresence errors are bad\n\n')
             # remove user from room
@@ -745,7 +739,6 @@ class ComponentServiceFromRoomService(Service):
             frm  = prs['from']
             nick = jid.internJID(prs['to']).resource
             if not frm.lower()+name.lower() in self.error_list:
-                
                 self.error_list.append(frm.lower()+name.lower())
 
                 self._partRoom(name, frm, nick, prs)
@@ -757,7 +750,7 @@ class ComponentServiceFromRoomService(Service):
             error_from_presence(prs, 'jid-malformed', str(prs['from']))
             self.send(prs)
             return
-        
+
         if frmhost == self.jid:
             log.msg('MUC: This presence is from palaver?')
             return
@@ -765,10 +758,12 @@ class ComponentServiceFromRoomService(Service):
         frm = prs['from']
         if self._doDelay(room, frm, prs):
             return
-        
+
         # check if room is active
-        if not prs.hasAttribute('type') and jid.internJID(frm).userhost() in self.groupchat.sadmins and \
-                self.groupchat.getHistory(room) == None and not self.groupchat.create_rooms:
+        if not prs.hasAttribute('type') and \
+                jid.internJID(frm).userhost() in self.groupchat.sadmins and \
+                self.groupchat.getHistory(room) == None \
+                and not self.groupchat.create_rooms:
             # create the room?
             try:
                 jabberId, name, host, frm, nick, status, show, legacy = self._getPresenceInfo(prs)
@@ -778,12 +773,11 @@ class ComponentServiceFromRoomService(Service):
                                  legacy = legacy)
             except:
                 pass
-        
+
         else:
             self._handlePresence(room, prs)
 
 
-            
     def _handlePresence(self, room, prs):
         frm = prs['from']
         room = jid_unescape(room)
@@ -799,7 +793,6 @@ class ComponentServiceFromRoomService(Service):
             self.prs_queue[key.lower()] = []
         self.prs_queue[key.lower()].append(prs)
 
-        
     def _popPresence(self, key, idx = 0):
         p = None
         if self.prs_queue.has_key(key.lower()):
@@ -821,7 +814,7 @@ class ComponentServiceFromRoomService(Service):
                 del self.msg_queue[frm.lower()]
         return p
 
-    
+
     def _finish_groupchat(self, rtup, chat):
         room_name = jid.internJID(chat['to']).user
         host      = jid.internJID(chat['to']).host
@@ -836,7 +829,7 @@ class ComponentServiceFromRoomService(Service):
         if len(members)==0:
             log.msg('muc.py: _finish_groupchat has no members')
             return
-        
+
         body    = getattr(chat,'body',None)
         subject = getattr(chat,'subject',None)
 
@@ -845,13 +838,13 @@ class ComponentServiceFromRoomService(Service):
                 nick = user['nick']
             else:
                 nick = frm
-                
+
             user = {'jid': frm,
                     'role': 'moderator',
                     'affiliation': 'owner',
                     'nick': nick,
                     }
-                
+
         if room.get('logroom'):
             self._log(room_name, host, user['nick'], chat)
         # grab children
@@ -860,18 +853,16 @@ class ComponentServiceFromRoomService(Service):
         if body:
             chat.children.pop(chat.children.index(body))
         if subject:
-            chat.children.pop(chat.children.index(subject))        
+            chat.children.pop(chat.children.index(subject))
 
         children = chat.children
         self.bcastMessage(room, user, body = body, subject = subject, children = children)
 
-        
         # FIXME - add this if legacy
         # if subject and body is None:
         #    body = '* '+user['nick'] + ' has changed the subject to ' + getCData(subject)
         #    self.bcastMessage(room, user, body = body, frm = room_name+'@'+self.jid, legacy=True)
-        
-        
+
     def _joined_room(self, rtup, prs):
         jabberId, room, host, frm, nick, status, show, legacy = self._getPresenceInfo(prs)
         if not rtup:
@@ -880,10 +871,7 @@ class ComponentServiceFromRoomService(Service):
             return
         r, new_user = rtup
         room = jid_escape(room)
-        
         members = r['roster']
-
-
         description = None
 
         self._delStzPending(jid_unescape(room), frm)
@@ -893,7 +881,6 @@ class ComponentServiceFromRoomService(Service):
             log.msg(frm)
             log.msg(members)
             raise groupchat.BadRequest
-            return 
 
         dlist = []
 
@@ -904,14 +891,14 @@ class ComponentServiceFromRoomService(Service):
             dlist.append(dbp)
         else:
             log.msg('Error in bcastPresence')
-            
+
         # send all member's presence to new member
         dmp = self.membersPresence(members, room, new_user, private=r['private'])
         if dmp:
             dlist.append(dmp)
         else:
             log.msg('Error in membersPresence')
-            
+
         # send subject
         if r['subject'] != '':
             self.sendMessage(new_user['jid'],
@@ -923,8 +910,7 @@ class ComponentServiceFromRoomService(Service):
                              room+'@'+self.jid,
                              body = description)
 
-        
-        
+
         if r['join'] != '':
             try:
                 body = unicode(new_user['nick']) + ' ' +unicode(r['join'])
@@ -937,9 +923,9 @@ class ComponentServiceFromRoomService(Service):
         if r.has_key('ignore_player') and int(r['ignore_player'])==1:
             ignore = True
         d.addCallback(lambda _:self.sendHistory(new_user, room, ignore_player=ignore, pres=prs))
-                
+
         return d
-    
+
     def sendHistory(self, new_user, room, ignore_player = False, pres = None):
         """ send history to a new user in a room.
          TODO - move this to group chat?
@@ -952,7 +938,7 @@ class ComponentServiceFromRoomService(Service):
             x = getattr(pres, 'x', None)
             if x is not None:
                 history_attr = getattr(x, 'history', None)
-                
+
             if history_attr is not None:
                 maxstanzas = history_attr.getAttribute('maxstanzas', None)
                 if history_attr.hasAttribute('since'):
@@ -978,35 +964,30 @@ class ComponentServiceFromRoomService(Service):
                 x = domish.Element((NS_X_DELAY,'x'))
                 # TODO - need a check for configuration on show jids
                 x['from'] = room+'@'+self.jid+'/'+h['user']['nick']
-                td = (datetime.datetime.now()-h['stamp'])
                 x['stamp'] = h['stamp'].strftime('%Y%m%dT%H:%M:%S')
                 children = [x]
                 children = children + h['extra']
                 if new_user['role']=='player' and not ignore_player:
                     if h['user']['role'] == 'player':
-                        
                         self.sendMessage(new_user['jid'],
-                                         room+'@'+self.jid+'/'+h['user']['nick'], 
+                                         room+'@'+self.jid+'/'+h['user']['nick'],
                                          body = h['body'],
                                          children = children)
                 else:
                     if h['user']['role']!= 'player':
                         self.sendMessage(new_user['jid'],
-                                         room+'@'+self.jid+'/'+h['user']['nick'], 
+                                         room+'@'+self.jid+'/'+h['user']['nick'],
                                          body = h['body'],
                                          children = children)
-        
+
     def _created_room(self, rtup, prs):
         r, new_user = rtup
 
-        members = r['roster']
         room = jid.internJID(prs['to']).user
-        user  = jid.internJID(prs['from']).userhost()
         frm  = prs['from']
-        nick = jid.internJID(prs['to']).resource
 
         typ = prs.getAttribute('type')
-        
+
         description = None
         self._delStzPending(jid_unescape(room), frm)
 
@@ -1039,11 +1020,9 @@ class ComponentServiceFromRoomService(Service):
 
     def _finish_presence(self, r, prs):
         members = r['roster']
-        
         room = jid.internJID(prs['to']).user
-        
+
         frm  = prs['from']
-        nick = getresource(prs['to'])
         status = getattr(prs, 'status', None)
         show   = getattr(prs, 'show', None)
 
@@ -1052,8 +1031,6 @@ class ComponentServiceFromRoomService(Service):
         if prs.hasAttribute('type') and prs['type']=='error':
             log.msg('MUC: Presence Error?')
             return
-        
-        description = None
 
         new_user = self.groupchat.getMember(members, frm, host=self.jid)
 
@@ -1062,14 +1039,13 @@ class ComponentServiceFromRoomService(Service):
 
         # send presence to members
         self.bcastPresence(members, room, new_user,show=show, status=status, private=r['private'])
-        
-        
+
+
     def _finish_nick(self, r, old_nick, prs):
         members = r['roster']
         room = jid.internJID(prs['to']).user
-        
+
         frm  = prs['from']
-        nick = jid.internJID(prs['to']).resource
         status = getattr(prs,'status',None)
         show   = getattr(prs,'show',None)
 
@@ -1080,36 +1056,35 @@ class ComponentServiceFromRoomService(Service):
             if prs['type']=='error':
                 log.msg('MUC: Nick Presence Error?')
                 return
-        
-        description = None
+
         new_user = self.groupchat.getMember(members, frm, host=self.jid)
-        
+
         # send member's presence to new member
         if new_user is None:
             raise groupchat.BadRequest
-        
+
         new_nick = new_user['nick']
-        
+
         # send all member's presence to new member
         for m in members.values():
-            x = domish.Element((NS_MUC_USER,'x'))                
+            x = domish.Element((NS_MUC_USER,'x'))
             item = x.addElement('item')
-                
+
             if m['role']=='moderator'\
                    and r['private']:
                 item['jid'] = new_user['jid']
             elif not r['private']:
                 item['jid'] = new_user['jid']
 
-            item['nick'] = new_user['nick']
+            item['nick'] = new_nick
             item['role'] = new_user['role'].lower()
             item['affiliation'] = new_user['affiliation']
-            
+
             s = x.addElement('status')
             s['code'] = '303'
-                        
+
             self.sendPresence(m['jid'], room+'@'+self.jid+'/'+old_nick, typ='unavailable', children=[x])
-        
+
         # send presence to members
         self.bcastPresence(members, room, new_user,show=show, status=status, attrs=prs.attributes, private=r['private'])
         if r['rename'] != '':
@@ -1117,7 +1092,7 @@ class ComponentServiceFromRoomService(Service):
             old_user = new_user
             old_user['nick'] = old_nick
             self.bcastMessage(r, old_user, body = body, frm = room+'@'+self.jid, legacy = True)
-        
+
 
     def _left_room(self, rtup, room, frm, nick, typ='unavailable', prs = None):
         if frm.lower()+room.lower() in self.error_list:
@@ -1160,29 +1135,28 @@ class ComponentServiceFromRoomService(Service):
 
             item['role'] = 'none'
             item['affiliation'] = old_user['affiliation']
-            
+
             self.sendPresence(frm, jid_escape(room)+'@'+self.jid+'/'+old_user['nick'], typ=typ,children=[x])
         else:
             self._delStzPending(room, frm)
             # do nothing for a user not in the room
             return
-        
+
         if len(members)>0:
             # broad cast presence
-            
+
             # send message and presence
             old_user['role'] = 'none'
-            
-            #members += old_user
+
             self.bcastPresence(members, jid_escape(room), old_user, typ = 'unavailable', private=r['private'])
 
             if r['leave'] != '':
                 body = nick + ' '+ r['leave']
-            
+
                 self.bcastMessage(r, old_user, body=body, frm = jid_escape(room)+'@'+self.jid, legacy=True)
         self._delStzPending(room, frm)
 
-    def _getPresenceInfo(self, prs):        
+    def _getPresenceInfo(self, prs):
         try:
             jabberId = jid.internJID(prs['to'])
             name = jid_unescape(jabberId.user)
@@ -1206,9 +1180,9 @@ class ComponentServiceFromRoomService(Service):
             show = ''
         else:
             show = getCData(show)
-        
+
         x = getattr(prs,'x',None)
-        
+
         if x and x.hasAttribute('xmlns') and x['xmlns']==NS_MUC:
             legacy = False
         elif x and x.uri and x.uri==NS_MUC:
@@ -1223,17 +1197,17 @@ class ComponentServiceFromRoomService(Service):
         d = self.groupchat.partRoom(name, frm, nick, host = self.jid)
         d.addCallback(self._left_room, name, frm, nick, prs = prs)
         d.addErrback(self.error, prs)
-        
+
     def _process_presence(self, room, name, frm):
         prs = self._popPresence(name+frm)
         if not prs:
             self._delStzPending(jid_unescape(name), frm)
             return
-        
+
         typ = prs.getAttribute('type')
-        
+
         jabberId, name, host, frm, nick, status, show, legacy = self._getPresenceInfo(prs)
-        
+
         if room != None:
             if typ:
                 # leave the room
@@ -1264,7 +1238,6 @@ class ComponentServiceFromRoomService(Service):
 
                     return d
                 else:
-                    
                     # join room
                     d = self.groupchat.joinRoom(name, frm, nick,
                                                 status = status,
@@ -1272,9 +1245,7 @@ class ComponentServiceFromRoomService(Service):
                                                 legacy = legacy,
                                                 host = self.jid
                                                 )
-                                        
                     d.addCallback(self._joined_room, prs)
-                    #d.addCallback(self.sendHistory, name)
                     return d
 
         else:
@@ -1294,15 +1265,14 @@ class ComponentServiceFromRoomService(Service):
                                       legacy=legacy,
                                       host=self.jid
                                       )
-        
+
         if legacy:
             d.addCallback(self._joined_room, prs)
-            #d.addCallback(self.sendHistory, name)
-        else: 
+        else:
             d.addCallback(self._created_room, prs)
         return d
-        
-        
+
+
     def _on_chat(self, r, chat):
         members = r['roster']
         room = jid_unescape(jid.internJID(chat['to']).user)
@@ -1330,25 +1300,23 @@ class ComponentServiceFromRoomService(Service):
                 if e.name != 'body':
                     children.append(e)
             self.sendMessage(to, mfrm , body=body, typ='chat', children=children)
-        
+
     def onChat(self, chat):
         try:
             room = jid_unescape(jid.internJID(chat['to']).user)
         except:
             log.err()
             return
-        
+
         # check if we allow private chats
         d = self.groupchat.getRoom(room, host=self.jid)
         d.addCallback(self._on_chat, chat)
         d.addErrback(self.error, chat)
         d.addErrback(self.send)
-        
 
 
     def onGroupChat(self, chat):
         frm  = chat.getAttribute('from','')
-            
         try:
             room = jid_unescape(jid.internJID(chat['to']).user)
         except:
@@ -1557,7 +1525,7 @@ class ComponentServiceFromAdminService(Service):
             if ujid.lower() == tjid.lower() or u['nick'] == user:
                 buser = u
                 break
-            
+
         if buser:
             # we need to attach other stuff to user?
             buser['xtra'] = type
@@ -1566,24 +1534,22 @@ class ComponentServiceFromAdminService(Service):
                 status_code = str(type['code'])
             else:
                 status_code = None
-            
+
             self.bcastPresence(users, room, buser, status_code=status_code)
             # remove extra from buser
             del buser['xtra']
 
         return []
-    
+
     def setItems(self, iq):
-        typ = iq.getAttribute('type')
-        
         room = jid_unescape(jid.internJID(iq['to']).user)
-        
+
         user = iq['from']
         item = iq.query.item
         item_type = {}
         d = None
         # FIXME - need to handle multiple items
-        
+
         # If we change nick or affiliation then we need to queue up presence till
         # this request finishes. 
         
@@ -1618,29 +1584,28 @@ class ComponentServiceFromAdminService(Service):
                 d = self.groupchat.ban(n, room, user, reason=reason, host=self.jid)
             elif item['affiliation'] == 'none':
                 d = self.groupchat.clearAffiliation(n, room, user, host=self.jid)
-                
+
         if item.hasAttribute('role'):
             item_type['role'] = item['role']
             item_type['actor'] = user
             reason = getattr(item, 'reason', None)
             if reason:
                 item_type['reason'] = reason
-                
+
             if item['role'] == 'none':
                 item_type['code'] = '307'
                 d = self.groupchat.kick(n, room, user, host=self.jid)
             elif item['role'] != '':
-                
                 d = self.groupchat.grantRole(item['role'], n, room, user, host=self.jid)
 
-            
+
         if not d:
             d = defer.succeed([])
-        
+
         d.addCallback(self._set_items, item_type, n, room)
         return d
 
-        
+
 
     def cancelConfig(self, iq):
         return defer.succeed([])
@@ -2085,7 +2050,7 @@ class ComponentServiceFromAdminService(Service):
                     else:
                         p = True
                     kwargs['invites'] = p
-                    
+
                 elif f['var'] == 'muc#roomconfig_moderated':
                     if str(f.value)=='0':
                         p = False
@@ -2103,33 +2068,26 @@ class ComponentServiceFromAdminService(Service):
                         p = False
                     else:
                         p = True
-                    kwargs['privmsg'] = p                                        
+                    kwargs['privmsg'] = p
                 else:
                     kwargs[str(f['var'])] = unicode(f.value)
         if len(kwargs)>0:
             d = self.groupchat.updateRoom(name, user, **kwargs)
-            
             d.addCallback(lambda _: [])
             return d
         return []
 
     def setConfig(self, iq):
-        typ = iq['type']
         room = jid_unescape(jid.internJID(iq['to']).user)
         user = iq['from']
         x    = getattr(iq.query,'x',None)
         d = self.groupchat.getRoomConfig(room, user, host=self.jid)
         d.addCallback(self._set_config, x, room, user)
-        
-        return d
-    
 
-    def cancelConfig(self, iq):
-        return defer.succeed([])
-        
+        return d
 
 components.registerAdapter(ComponentServiceFromAdminService,
                            groupchat.IAdminService,
                            IService)
 
-    
+

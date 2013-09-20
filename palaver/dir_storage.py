@@ -1,4 +1,4 @@
-# Copyright (c) 2005 - 2008  Christopher Zorn, OGG, LLC 
+# Copyright (c) 2005 - 2013  Christopher Zorn
 # See LICENSE.txt for details
 
 from twisted.internet import defer
@@ -27,8 +27,7 @@ class Storage:
         self.spool = dirdbm.Shelf(spool)
         if not self.spool.has_key('rooms'):
             self.spool['rooms'] = {}
-        
-    
+
 
     def _room_exists(self, room):
         if self.spool['rooms'].has_key(room):
@@ -227,9 +226,9 @@ class Storage:
                 if o.lower() == ju.lower():
                     u['affiliation'] = 'owner'
                     u['role'] = 'moderator'
-                    
+
             rooms[room]['roster'][user.lower()] = u
-        self.spool['rooms'] = rooms    
+        self.spool['rooms'] = rooms
         return u['role']
 
 
@@ -242,14 +241,12 @@ class Storage:
             for u in rooms[room]['roster'].values():
                 if u['jid'].lower() == user.lower():
                     new_user = u
-                    #del rooms[room]['roster'][rooms[room]['roster'].index(u)]
-                
+
         if new_user:
             log.msg('Already in roster?')
-         
+
         else:
             u = {}
-            ju = jid.JID(user).userhost()
             u['jid']  = user
             if rooms[room]['moderated']:
                 u['role'] = 'visitor'
@@ -262,16 +259,16 @@ class Storage:
             u['legacy'] = legacy
             u['show'] = show
             u['status'] = status
-            
+
             rooms[room]['roster'][user.lower()] = u
-            self.spool['rooms'] = rooms    
+            self.spool['rooms'] = rooms
             u['role'] = self._setNewRole(room, user, host)
 
-            return defer.succeed(True)        
-        
-        
+            return defer.succeed(True)
+
+
         return defer.succeed(self._get_room(room))
-        
+
 
     def partRoom(self, room, user, nick, host=None):
         # check for room types, grab role and affiliation
@@ -279,21 +276,24 @@ class Storage:
         old_u = None
         if rooms.has_key(room):
             old_u = rooms[room]['roster'].get(user.lower())
-            if not old_u:
+            if old_u is None:
                 for u in rooms[room]['roster'].values():
                     if u['jid'].lower() == user.lower() and u['nick'].lower()==nick.lower():
                         old_u = u
-            if old_u:
-                del rooms[room]['roster'][old_u['jid'].lower()]            
+            if old_u is not None:
+                try:
+                    del rooms[room]['roster'][old_u['jid'].lower()]
+                except KeyError:
+                    pass
             self.spool['rooms'] = rooms
             return defer.succeed(old_u)
         else:
             return defer.fail(groupchat.RoomNotFound)
-    
+
 
     def _get_room_members(self,  room, host=None):
         members = []
-        
+
         if self.spool['rooms'].has_key(room):
             #args    = self.spool['rooms'][room]
             members = self.spool['rooms'][room]['roster']
