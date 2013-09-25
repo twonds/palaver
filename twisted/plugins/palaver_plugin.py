@@ -1,10 +1,10 @@
-# Copyright (c) 2005 - 2008 Christopher Zorn, OGG, LLC 
+# Copyright (c) 2005 - 2013 Christopher Zorn
 # See LICENSE.txt for details
-from twisted.words.protocols.jabber import component
-from twisted.application import internet, service
-from twisted.internet import interfaces
+from zope.interface import implements
+
 from twisted.python import usage
-from twisted.words.xish import domish, xpath
+from twisted.plugin import IPlugin
+from twisted.application.service import IServiceMaker
 
 
 import palaver
@@ -30,5 +30,16 @@ class Options(usage.Options):
                 ('verbose', 'v', 'Show traffic'),
         ]
 
-def makeService(config):
-        return palaver.makeService(config)
+#def makeService(config):
+#        return palaver.makeService(config)
+
+class ServiceFactory(object):
+    implements(IServiceMaker, IPlugin)
+    tapname = "palaver"
+    description = "An XMPP Multi-User Chat component"
+    options = Options
+
+    def makeService(self, options):
+        return palaver.makeService(options)
+
+service = ServiceFactory()
