@@ -283,14 +283,14 @@ class GroupchatService(service.MultiService):
     HISTORY = {}
     sadmins = []
     plugins = {}
-    
+
     queue = StanzaQueue()
 
     def __init__(self, storage, use_cache = False):
         service.MultiService.__init__(self)
         self.use_cache = use_cache
         self.storage = storage
-        
+
         self.storage.use_cache = use_cache
 
         self.active_rooms = []
@@ -308,22 +308,22 @@ class GroupchatService(service.MultiService):
                 self._clean_up_history(True, room['name'])
         elif jid.internJID(frm).userhost() in self.sadmins:
             self.HISTORY = {}
-    
+
     def getActiveRoom(self, name):
-        idx = self.active_rooms.index(name) 
+        idx = self.active_rooms.index(name)
         if idx != -1:
             return self.active_rooms[idx]
-        
+
     def addActiveRoom(self, name):
-        idx = self.active_rooms.index(name) 
+        idx = self.active_rooms.index(name)
         if idx == -1:
             self.active_rooms.append(name)
 
     def removeActiveRoom(self, name):
-        idx = self.active_rooms.index(name) 
+        idx = self.active_rooms.index(name)
         if idx != -1:
             self.active_rooms.pop(idx)
-        
+
     def getRooms(self, host = None, frm = None):
         # do we need a call back from processing the rooms?
         return self.storage.getRooms(host = host, frm = frm)
@@ -337,15 +337,15 @@ class GroupchatService(service.MultiService):
     def getMember(self, members, mid, host=None):
         """
         grab the member from the roster list.
- 
+
         """
         ret_m = members.get(mid)
         if not ret_m:
             ret_m = members.get(mid.lower())
         if not ret_m:
-            ret_mem = members.get(jid.internJID(mid).userhost())
+            ret_m = members.get(jid.internJID(mid).userhost())
         if not ret_m:
-            ret_mem = members.get(jid.internJID(mid).userhost().lower())
+            ret_m = members.get(jid.internJID(mid).userhost().lower())
 
         return ret_m
 
@@ -383,7 +383,7 @@ class GroupchatService(service.MultiService):
             return True
         if self._check_role(room, user, 'moderator'):
             return True
-            
+
         return False
 
 
@@ -414,7 +414,7 @@ class GroupchatService(service.MultiService):
             return True
         if self._check_admin(room, user):
             return True
-        
+
         return False
 
 
@@ -425,7 +425,7 @@ class GroupchatService(service.MultiService):
             return True
         if self._check_admin(room, user):
             return True
-        
+
         return self._check_member(room, user)
 
     def _check_sadmin(self, room, user):
@@ -435,7 +435,7 @@ class GroupchatService(service.MultiService):
             if jid.internJID(m).userhost().lower() == juser:
                 return True
         return False
-    
+
     def _check_owner(self, room, user):
         check = False
         juser = jid.internJID(user).userhost()
@@ -452,7 +452,7 @@ class GroupchatService(service.MultiService):
             return check
         if members.has_key(juser.lower()):
             check = True
-            return check        
+            return check
 
         return check
 
@@ -471,7 +471,7 @@ class GroupchatService(service.MultiService):
             return check
         if members.has_key(juser.lower()):
             check = True
-            return check                
+            return check
         return check
 
     def _check_member(self, room, user):
@@ -492,20 +492,20 @@ class GroupchatService(service.MultiService):
                 return check
             if members.has_key(juser.lower()):
                 check = True
-                return check                
+                return check
         return check
 
 class RoomService(service.Service):
 
     implements(IRoomService)
-    
-    create_rooms = 1    
+
+    create_rooms = 1
     sadmins = []
     plugins = {}
 
     def setUpHistory(self, host):
         self.parent.getRooms(host).addCallback(self._cbSetUpHistory, host)
-        
+
     def _cbSetUpHistory(self, rooms, host):
         for r in rooms:
             if not r['name']:
@@ -553,7 +553,7 @@ class RoomService(service.Service):
                 d.addCallback(create_room, error_code = NotMember)
             else:
                 d = create_room(True)
-            
+
             return d
         else:
             raise NotAllowed
@@ -563,7 +563,7 @@ class RoomService(service.Service):
         d = self.parent.storage.deleteRoom(room, check_persistent = True, host = host)
         d.addCallback(self.parent._clean_up_history, room)
         return d
-    
+
     def processGroupChat(self, room, frm, body, extra=[], host=None):
 
         def process(r):
@@ -932,20 +932,15 @@ class AdminService(service.Service):
             self.HISTORY = {}
 
 
-
-    def getMember(self, room, user, host = None):
-        return self.parent.getMember(room, user, host = host)
-
     def kick(self, user, room, admin, host=None):
         """
         """
         def ret_kick(rooms, room, old_r):
             return old_r
-        
+
         def set_kick(r, user):
             if self.checkAdmin(r, admin):
                 kuser = None
-                roster = []
                 if self.checkOwner(r, user):
                     raise NotAllowed
                 user_check = jid.internJID(user).userhost().lower()
@@ -1042,7 +1037,7 @@ class AdminService(service.Service):
 
     def grantRole(self, role, user, room, admin, host=None):
         """
-        """        
+        """
         def set_r(r, user, role):
             if r is None:
                 log.msg('Role can not be granted ' + room + user)
@@ -1050,10 +1045,10 @@ class AdminService(service.Service):
             check = self.checkAdmin
             if role == 'none' or role == 'participant':
                 check = self.checkModerator
-            
+
             if check(r, admin):
                 user_check = user.lower()
-                ru = None
+
                 # TODO - clean this up
                 roster = r['roster']
                 cjid = None
@@ -1061,7 +1056,7 @@ class AdminService(service.Service):
                     if m['jid'].lower() == user_check or m['nick'].lower() == user_check:
                         if self.checkSelf(m['jid'], admin):
                             raise NotAllowed
-                                           
+
                         cjid = m['jid']
                         roster[cjid.lower()]['role'] = role
                         break
@@ -1072,7 +1067,7 @@ class AdminService(service.Service):
                 return roster
             else:
                 raise NotAllowed
-        
+
         d = self.parent.storage.getRoom(room, host=host)
         d.addCallback(set_r, user, role)
         return d
@@ -1205,7 +1200,7 @@ class AdminService(service.Service):
                 raise NotAllowed
             except:
                 return True
-            
+
         d = self.parent.storage.getRoom(room, host=host)
         d.addCallback(destroy)
         return d
@@ -1215,17 +1210,17 @@ class AdminService(service.Service):
         """
         def del_admin(r):
             if self.checkAdmin(r, admin):
-                                
+                u = user
                 for m in r['roster'].values():
                     if m['jid'].lower() == user.lower() or m['nick'] == user:
                         if self.checkSelf(m['jid'], admin):
                             raise NotAllowed
-                        
-                        user = jid.internJID(m['jid']).userhost()
+
+                        u = jid.internJID(m['jid']).userhost()
                         break
-                        
-                if user in r['admin']:
-                    del r['admin'][user]
+
+                if u in r['admin']:
+                    del r['admin'][u]
                 return r['roster']
             else:
                 raise NotAllowed
@@ -1245,7 +1240,7 @@ class AdminService(service.Service):
 
     def checkBanned(self, room, user):
         return self.parent.checkBanned(room, user)
-        
+
     def _check_role(self, room, user, role):
         return self.parent._check_role(room, user, role)
 
@@ -1283,13 +1278,13 @@ class AdminService(service.Service):
     def getMembers(self, room, admin, host=None):
         """
         """
-    
+
         def get_a(r):
             if self.checkAdmin(r, admin):
                 return r['member']
             else:
                 raise NotAllowed
-        
+
         d = self.parent.storage.getRoom(room, host=host)
         d.addCallback(get_a)
         return d
@@ -1297,7 +1292,7 @@ class AdminService(service.Service):
     def getRoles(self, room, role, admin, host=None):
         """
         """
-    
+
         def get_a(r):
             if self.checkAdmin(r, admin):
                 roles = []
@@ -1307,17 +1302,14 @@ class AdminService(service.Service):
                 return roles
             else:
                 raise NotAllowed
-        
+
         d = self.parent.storage.getRoom(room, host=host)
         d.addCallback(get_a)
         return d
 
-
-    
     def getMember(self, members, user, owner, host=None):
         return self.parent.getMember(members, user)
-        
-        
+
     def updateRoom(self, room, owner, **kwargs):
         def update(r):
             if self.checkOwner(r, owner):
@@ -1327,7 +1319,7 @@ class AdminService(service.Service):
         d = self.parent.storage.getRoom(room, host=kwargs['host'])
         d.addCallback(update)
         return d
-    
+
     def grantOwner(self, user, room, owner, host=None):
         """
         """
@@ -1338,7 +1330,7 @@ class AdminService(service.Service):
                 try:
                     jid_user = jid.internJID(user).userhost()
                 except:
-                    jid_user = ''   
+                    jid_user = ''
                 mjid = None
                 cjid = None
                 dlist = []
@@ -1350,7 +1342,7 @@ class AdminService(service.Service):
                         cjid = mjid.lower()
                         if m['nick'].lower() == user.lower():
                             user = mjid
-                            
+
                         r['roster'][cjid]['role'] = 'moderator'
                         r['roster'][cjid]['affiliation'] = 'owner'
                         break
@@ -1483,16 +1475,16 @@ class AdminService(service.Service):
         """
         def del_owner(r):
             if self.checkOwner(r, owner):
-                
-                if self.checkSelf(user, owner):
+                u = user
+                if self.checkSelf(u, owner):
                     raise NotAllowed
-                if user.find('@') == -1:
+                if u.find('@') == -1:
                     for m in r['roster'].values():
-                        if m['nick'] == user:
-                            user = jid.internJID(m['jid']).userhost()
+                        if m['nick'] == u:
+                            u = jid.internJID(m['jid']).userhost()
                             break
-                if user not in r['owner']:
-                    del r['owner'][user]
+                if u not in r['owner']:
+                    del r['owner'][u]
                 return r['roster']
             else:
                 raise NotAllowed
@@ -1505,20 +1497,20 @@ class AdminService(service.Service):
         """
         def get_owner(r):
             if self.checkOwner(r, owner):
-                if user.find('@') == -1:
+                u = user
+                if u.find('@') == -1:
                     for m in r['roster'].values():
-                        if m['nick'] == user:
-                            user = jid.internJID(m['jid']).userhost()
+                        if m['nick'] == u:
+                            u = jid.internJID(m['jid']).userhost()
                             break
-                if user in r['owner']:
-                    return r['owner'][user]
-                        
+                if u in r['owner']:
+                    return r['owner'][u]
                 return
             else:
                 raise NotAllowed
         d = self.parent.storage.getRoom(room, host=host)
         d.addCallback(get_owner)
-        d.addErrback(lambda x: self.error(NotAllowed, x)) 
+        d.addErrback(lambda x: self.error(NotAllowed, x))
         return d
 
     def checkOwner(self, room, owner):

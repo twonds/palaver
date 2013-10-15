@@ -1298,9 +1298,9 @@ class Storage:
                 if len(m)>7:
                     ret_val['reason'][m[1]] = m[7]
 
-        
+
             ret_val['roster'] = {}
-            
+
             ret_val = self._dbrosterToHash(ret_val, roster)
 
         d.callback(ret_val)

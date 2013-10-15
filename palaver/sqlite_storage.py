@@ -972,13 +972,11 @@ class Storage:
             role = 'outcast'
         elif affiliation and dbroom[6]:
             role = 'visitor'
-                
-        u = yield self._dbpool.runWithConnection(self._update_role, dbroom[0], dbuser[0], role)
-        
+
+        yield self._dbpool.runWithConnection(self._update_role, dbroom[0], dbuser[0], role)
+
         d.callback(role)
-    
-    
-    
+
     @defer.inlineCallbacks
     def _changeStatus(self, d, room, user, show = None, status = None, legacy = False, host = None):
 
@@ -1079,29 +1077,26 @@ class Storage:
             return True
         return False
 
-    
     def _get_attributes(self, conn, dbroom):
         cursor = conn.cursor()
         # get attributes
-        cursor.execute("SELECT key, value FROM muc_roomattributess WHERE room_id = ?""" , (dbroom, ))
+        cursor.execute("SELECT key, value FROM muc_roomattributess WHERE room_id = ?" , (dbroom, ))
         return cursor.fetchall()
 
-    
-        
     def _fetchUser(self, user):
         return self._dbpool.runWithConnection(self._fetch_user, user)
 
     def _fetchRoom(self, room, host):
         return self._dbpool.runWithConnection(self._fetch_room, room, host)
-        
+
     def _fetchRoster(self, room_id):
         return self._dbpool.runWithConnection(self._fetch_roster, room_id)
-        
+
     def _fetchRoomAttributes(self, room_id):
         """ Get Room attributes """
         d  = self._dbpool.runWithConnection(self._get_attributes, room_id)
         return d
-                            
+
     def _filterAffiliationList(self, alist):
         users = {}
         new_list = []
@@ -1176,9 +1171,9 @@ class Storage:
                 if len(m)>7:
                     ret_val['reason'][m[1]] = m[7]
 
-        
-            ret_val['roster'] = []
-            
+
+            ret_val['roster'] = {}
+
             ret_val = self._dbrosterToHash(ret_val, roster)
 
         d.callback(ret_val)
@@ -1462,8 +1457,8 @@ class Storage:
                 u['affiliation'] = m[12]
                 if set_role:
                     u['role'] = groupchat.AFFILIATION_ROLE_MAP[m[12]]
-            
-            ret_val['roster'].append(u)
+
+            ret_val['roster'][u['jid'].lower()] = u
         return ret_val
 
     def _checkBool(self, val):
@@ -1483,10 +1478,10 @@ class Storage:
 
     def _dbroomToHash(self, r):
         # may just make this a loop
-        
+
         ret_val = {'name': r[1],
                    'id': r[0]}
-            
+
         ret_val['roomname'] = self._checkString(r[2])
         ret_val['subject'] = self._checkString(r[3])
         ret_val['subject_change'] = self._checkBool(r[4])
