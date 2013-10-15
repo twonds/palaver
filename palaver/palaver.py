@@ -220,25 +220,24 @@ def makeService(config):
         cf = p.parse(config['config'])
     except:
         pass
-    
+
     if not config['jid'] and cf:
         jname = str(getattr(cf,'name','palaver'))
         #jname = 'palaver'
         for e in cf.elements():
             if e.name == 'name':
                 jname = str(e)
-        
     elif config['jid']:
         jname = config['jid']
     else:
         jname = 'palaver'
 
-    
+
     if not config['secret'] and cf:
         jsecret = str(getattr(cf, 'secret', 'secret'))
     else:
         jsecret = config['secret']
-        
+
     if not config['rhost']  and cf:
         rhost = str(getattr(cf, 'ip', 'localhost'))
     else:
@@ -257,7 +256,7 @@ def makeService(config):
         spool = str(getattr(cf, 'spool', ''))
     else:
         spool = config['spool']
-    
+
     # set up Jabber Component
     sm = component.buildServiceManager(jname, jsecret,
             ("tcp:%s:%s" % (rhost , rport)))
@@ -287,8 +286,8 @@ def makeService(config):
                 if dbport:
                     config['dbport'] = str(dbport)
                 else:
-                    config['dbport'] = None                    
-                    
+                    config['dbport'] = None
+
                 dbhostname = getattr(cf.backend,'dbhostname',None)
                 if dbhostname:
                     config['dbhostname'] = str(dbhostname)
@@ -300,8 +299,7 @@ def makeService(config):
             for p in cf.plugins.elements():
                 plugin = reflect.namedModule(str(p))
                 config['plugins'][str(p.name)] = plugin.Plugin()
-                
-                
+
     if config['backend'] == 'dir':
         import dir_storage
         st = dir_storage.Storage(spool)
@@ -319,20 +317,19 @@ def makeService(config):
             dbpass = config['dbpass']
         else:
             dbpass = None
-            
+
         if config['dbport']:
             dbport = config['dbport']
         else:
             dbport = None
-            
-            
+
         st = pgsql_storage.Storage(user=config['dbuser'],
                                    database=config['dbname'],
                                    hostname=host,
                                    password=dbpass,
                                    port=dbport,
                                    )
-        
+
     elif config['backend'] == 'psycopg':
         import psycopg_storage
         if config['dbhostname']:
@@ -344,13 +341,13 @@ def makeService(config):
             dbpass = config['dbpass']
         else:
             dbpass = None
-            
+
         st = psycopg_storage.Storage(user=config['dbuser'],
                                    database=config['dbname'],
                                    hostname=host,
                                    password=dbpass,
-                                   )        
-        
+                                   )
+
     sadmins = []
     conference = getattr(cf,'conference', None)
     if conference:
@@ -367,7 +364,7 @@ def makeService(config):
     if len(sadmins)>0:
         bs.sadmins = sadmins
     bs.plugins = config['plugins']
-    
+
     c = IService(bs)
     c.setServiceParent(sm)
 
@@ -376,14 +373,14 @@ def makeService(config):
     bsc.create_rooms = config['create']
     if len(sadmins)>0:
         bsc.sadmins = sadmins
-        
-        
+
+
     bsc.setServiceParent(bs)
     rs = IService(bsc)
     if len(config['log'])>1:
         import plog
         rs.logger = plog.HTMLLogger(config['log'])
-        
+
     rs.setServiceParent(sm)
 
     if config['admin']==1:
@@ -392,13 +389,13 @@ def makeService(config):
         bsc.setServiceParent(bs)
         if len(sadmins)>0:
             bsc.sadmins = sadmins
-        
+
         IService(bsc).setServiceParent(sm)
-        
+
 
     s = PalaverService()
     s.setServiceParent(sm)
-    
+
     sm.setServiceParent(serviceCollection)
 
 
