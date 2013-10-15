@@ -496,11 +496,11 @@ class ComponentServiceFromService(Service):
         fields.append({'var': 'muc#roominfo_description',
                        'label' :'Description ',
                        'value': room['description']})
-        
+
         fields.append({'var': 'muc#roominfo_subject',
                        'label' :'Room Topic',
                        'value': room['subject']})
-        
+
         fields.append({'var': 'muc#roominfo_occupants',
                        'label' :'Number of Occupants',
                        'value': str(count)})
@@ -510,21 +510,20 @@ class ComponentServiceFromService(Service):
         result_list.append(x)
         return result_list
 
-    
+
     def get_disco_items(self, room = None, host = None, frm = None, nick = None, node = None):
         def add_items(r):
             # TODO - if a room is not private send room members
             if r and frm and nick:
                 if not self.groupchat.checkMember(r, frm):
                     e = domish.Element((None,'error'))
-                    c = e.addElement((NS_XMPP_STANZAS, 'bad-request'), NS_XMPP_STANZAS)
+                    e.addElement((NS_XMPP_STANZAS, 'bad-request'), NS_XMPP_STANZAS)
                     e['code'] = '400'
                     e['type'] = 'modify'
-                    
+
                     return [e]
-            
             return []
-        
+
         def add_rooms(rooms):
             items = []
             for r in rooms:
@@ -533,7 +532,7 @@ class ComponentServiceFromService(Service):
                     des = unicode(r['name'], 'utf8')
                 else:
                     des = r['name']
-                
+
                 if type(r['description'])==type(''):
                     description = unicode(r['description'], 'utf-8')
                 else:
