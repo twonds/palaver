@@ -359,8 +359,8 @@ def makeService(config):
     if len(sadmins)>0:
         st.sadmins = sadmins
 
-    import groupchat as g
-    bs = g.GroupchatService(st)
+    import muc
+    bs = muc.groupchat.GroupchatService(st)
     if len(sadmins)>0:
         bs.sadmins = sadmins
     bs.plugins = config['plugins']

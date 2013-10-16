@@ -15,7 +15,7 @@ from zope.interface import Interface, implements
 
 from palaver import pgsql_storage
 from palaver import palaver
-from palaver import groupchat
+from palaver import muc
 
 application = service.Application("palaver-chat")
 
@@ -36,7 +36,7 @@ st = pgsql_storage.Storage(user='muc',
 
 sadmins = ['admin@localhost'
           ]
-bs = groupchat.GroupchatService(st)
+bs = muc.groupchat.GroupchatService(st)
 
 bs.sadmins = sadmins
 
@@ -44,7 +44,7 @@ c = IService(bs)
 c.setServiceParent(sm)
 
 
-bsc = groupchat.RoomService()
+bsc = muc.groupchat.RoomService()
 bsc.sadmins = sadmins
 bsc.create_rooms = 1
 
@@ -52,7 +52,7 @@ bsc.setServiceParent(bs)
 IService(bsc).setServiceParent(sm)
 
 
-bsc = groupchat.AdminService()
+bsc = muc.groupchat.AdminService()
 bsc.setServiceParent(bs)
 bsc.sadmins = sadmins
 

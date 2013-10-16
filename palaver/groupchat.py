@@ -168,8 +168,8 @@ class IRoomService(Interface):
         """
 
     # TODO - room registration
-        
-        
+
+
 class IAdminService(Interface):
     """
     """
@@ -199,7 +199,7 @@ class IAdminService(Interface):
 
     def grantMembership(self, user, room, admin, host):
         """
-        """        
+        """
 
     def getModerators(self, admin, room, host):
         """

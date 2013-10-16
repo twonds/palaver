@@ -695,7 +695,7 @@ class ComponentServiceFromRoomService(Service):
             fitem = r['roster'].get(iq['from'])
             if not fitem:
                 raise groupchat.NotAllowed
-            
+
             for ritem in r['roster'].values():
                 if ritem['nick'] == nick:
                     riq = xmlstream.IQ(self.xmlstream, iq['type'])
@@ -706,16 +706,15 @@ class ComponentServiceFromRoomService(Service):
                     riq.send().addCallback(self.forwardIq, ritem, fitem, room, host, nick)
                     break
             iq.handled = True
-        
+
         # get room
-        
         d = self.groupchat.getRoom(room,host=self.jid)
         d.addCallback(process_iq)
         d.addErrback(self.error, iq)
 
         return d
 
-    
+
     def _log(self, room, host, nick, elem):
         """
         Log the room name, host name, nick that sent the element and
@@ -724,7 +723,7 @@ class ComponentServiceFromRoomService(Service):
         """
         if self.logger:
             self.logger.log(room, host, nick, [elem])
-            
+
     def onPresence(self, prs):
         """
         Add the presence stanza to the queue and grab the room.
