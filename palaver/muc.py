@@ -481,7 +481,7 @@ class ComponentServiceFromService(Service):
                 continue
             count = count + 1
         result_list.append(disco.Identity('conference', 'text',
-                                          room['description']))
+                                          room['roomname']))
         # add features
         # TODO - this needs to be configurable
         result_list.append(disco.Feature(NS_MUC))
