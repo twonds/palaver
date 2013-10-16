@@ -1,20 +1,20 @@
-# Copyright (c) 2005 - 2008 Christopher Zorn, OGG, LLC 
+# Copyright (c) 2005 - 2013 Christopher Zorn
 # See LICENSE.txt for details
 
 
 import string, time
-from twisted.enterprise import adbapi
 from twisted.python import log, failure
 from twisted.internet import defer
-from twisted.words.protocols.jabber import jid
+
 from zope.interface import implements
+
 import cPickle as pickle
 import groupchat
 import storage
 
 from pysqlite2 import dbapi2 as sqlite
 
-AFFILIATION_LIST = ['admin','member','owner','player','outcast']        
+AFFILIATION_LIST = ['admin','member','owner','player','outcast']
 
 
 class Room(dict):
@@ -25,13 +25,13 @@ def jid_userhost(user):
 
 def jid_user(user):
     return str(user).split("@")[0]
-    
+
 def jid_resource(user):
     try:
         return str(user).split("/", 1)[1]
     except:
         pass
-    
+
 MAP_DICT = {
     0  :  "id",
     1  :  "name",
@@ -67,11 +67,11 @@ class Cursor(object):
         self._connection = connection
         self._cursor     = connection.conn.cursor()
         self.timeout     = timeout
- 	 	
+
     def __iter__(self):
         return iter(self._cursor)
- 	
- 	
+
+
     def rowcount(self):
         return self._cursor.rowcount
 
@@ -81,17 +81,17 @@ class Cursor(object):
         from an fixed but arbitrary point.
         """
         return time.time()
- 	
- 	
+
+
     def sleep(self, seconds):
         """
         Block for the given number of seconds.
- 	
+
         @type seconds: C{float}
         """
         time.sleep(seconds)
- 	
-	
+
+
     def execute(self, sql, args=()):
         try:
             try:
@@ -1135,13 +1135,13 @@ class Storage:
     def _getRoom(self, d, room, host, frm = None):
         ret_val = None
         r = None
-        
+
         r = yield self._fetchRoom(room, host)
 
         if r:
             # create a cleaner way to map these
             ret_val = self._dbroomToHash(r)
-            
+
             attribs = yield self._fetchRoomAttributes(r[0])
             for key, val in attribs:
                 try:
@@ -1151,7 +1151,7 @@ class Storage:
                     pass
 
             roster = yield self._fetchRoster(int(r[0]))
-            
+
             members = yield self._fetchAffiliations(int(r[0]), 'member')
             ret_val['member'] = self._appendAffiliations(r[0], members)
             admins = yield self._fetchAffiliations(int(r[0]), 'admin')
@@ -1160,17 +1160,16 @@ class Storage:
             ret_val['owner'] = self._appendAffiliations(r[0], owners)
             players = yield self._fetchAffiliations(int(r[0]), 'player')
             ret_val['player'] = self._appendAffiliations(r[0], players)
-            
+
             outcasts  = yield self._fetchAffiliations(int(r[0]), 'outcast')
-            
-            ret_val['outcast'] = []
+
+            ret_val['outcast'] = {}
             ret_val['reason'] = {}
-    
+
             for m in outcasts:
-                ret_val['outcast'].append(m[1])
+                ret_val['outcast'][m[1]] = m[1]
                 if len(m)>7:
                     ret_val['reason'][m[1]] = m[7]
-
 
             ret_val['roster'] = {}
 
@@ -1243,8 +1242,8 @@ class Storage:
         return self.setAffiliation(room, user, 'member', host = host)
 
     def _get_room_members(self, conn, room, host, frm):
-        
-        r = self._fetch_room(conn, room, host)            
+
+        r = self._fetch_room(conn, room, host)
         dbmembers = self._fetch_members(conn, int(r[0]))
         members = []
         for m in dbmembers:

@@ -1287,12 +1287,12 @@ class Storage:
             if r[MAP_DICT_BW["game"]]:
                 players = yield self._fetchAffiliations(int(r[0]), 'player')
                 ret_val['player'] = self._appendAffiliations(r[0], players)
-            
+
             outcasts  = yield self._fetchAffiliations(int(r[0]), 'outcast')
-            
+
             ret_val['outcast'] = {}
             ret_val['reason'] = {}
-    
+
             for m in outcasts:
                 ret_val['outcast'][m[1]] = m[1]
                 if len(m)>7:
