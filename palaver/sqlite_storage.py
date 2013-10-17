@@ -1118,10 +1118,13 @@ class Storage:
         return new_list
 
     def _appendAffiliations(self, room_id, affiliations):
-        val = []
+        val = {}
         for m in affiliations:
-            val.append(m[1])
+            u = m[1].lower()
+            val[u] = u
+
         return val
+
 
     def _fetchAffiliations(self, room_id, affiliation):
         """
